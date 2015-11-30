@@ -1,0 +1,8 @@
+es:
+  process:
+    status:
+      uninterruptible_sleep: 'Descanso interrumpido'
+      running: 'Corriendo'
+      sleeping: 'Durmiendo'
+      traced_or_stopped: 'Terminado'
+      zombie: 'Zombie'

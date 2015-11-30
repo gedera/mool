@@ -1,0 +1,90 @@
+class MoolDisk
+  PATH_DEV_BLOCK = Dir.glob('/sys/dev/block/*')
+
+  attr_reader :path, :major, :minor, :devname, :devtype, :size, :swap, :mount_point, :file_system, :total_block, :block_used, :block_free, :partitions, :slaves
+
+  def initialize(dev_name)
+    @path = PATH_DEV_BLOCK.select{ |entry| ( File.read("#{entry}/dev").include?(dev_name)) ||
+                                           ( File.read("#{entry}/uevent").include?(dev_name)) ||
+                                           ( File.exist?("#{entry}/dm/name") &&
+                                             File.read("#{entry}/dm/name").include?(dev_name)) }.first
+    raise "Does't exist #{dev_name}!" if @path.nil?
+    read_uevent
+    logical_name
+    swap
+    capacity
+    mounting_point
+    file_system
+  end
+
+  def mounting_point
+    @mount_point ||= File.read("/proc/mounts").scan(/sda1 (\S+)/).flatten.first if File.read("/proc/mounts").include?(@logical_name)
+  end
+
+  def file_system
+    @file_system ||= (Dir.glob("/sys/fs/**/*").select{|a| a.include?(@devname)}.first.split("/")[3] rescue nil)
+  end
+
+  def logical_name
+    @logical_name ||= File.exists?("#{@path}/dm/name")? File.read("#{@path}/dm/name").chomp : @devname
+  end
+
+  def read_uevent
+    @major, @minor, @devname, @devtype = File.read("#{@path}/uevent").scan(/.*=(\d+)\n.*=(\d+)\n.*=(\S+)\n.*=(\w+)\n/).flatten
+  end
+
+  def dev; @major + @minor; end
+
+  def is_disk?; @devtype == "disk"; end
+
+  def is_partition?; @devtype == "partition"; end
+
+  def swap; @swap ||= File.read("/proc/swaps")[/#{@logical_name} /].present?; end
+
+  def capacity
+    unless (defined?(@total_block) && defined?(@block_used) && defined?(@block_free))
+      result = `df`.scan(/(#{@logical_name}|#{@devname})\s+(\d+)\s+(\d+)\s+(\d+)\s+(\S+)/).flatten
+      @total_block = File.read("#{@path}/size").chomp.to_i * 512
+      @block_used  = result[2].to_i * 512
+      @block_free  = result[3].to_i * 512
+    end
+  end
+
+  def partitions
+    unless defined? @partitions
+      @partitions = []
+      if is_disk?
+        Dir.glob("#{@path}/#{@devname}*").each do |part|
+          @partitions << MoolDisk.new(part.split("/").last)
+        end
+      end
+    end
+    @partitions
+  end
+
+  def slaves
+    unless defined? @slaves
+      @slaves = []
+      PATH_DEV_BLOCK.select{ |entry| File.directory?("#{entry}/slaves/#{@devname}") }.each do |slave|
+        @slaves << MoolDisk.new(slave.split("/").last)
+      end
+    end
+    @slaves
+  end
+
+  def self.all
+    disks = []
+
+    PATH_DEV_BLOCK.each do |entry|
+      real_path = `readlink -f #{entry}`.chomp
+      disks << MoolDisk.new(entry.split("/").last) if (not real_path.include?("virtual")) &&
+                                                      (not File.exist?("#{real_path}/partition")) &&
+                                                      Dir.glob("#{real_path}/slaves/*").empty?
+    end
+
+    disks.each{ |disk| disk.partitions.each { |part| part.partitions and part.slaves }}
+    disks.each{ |disk| disk.slaves.each { |part| part.partitions and part.slaves }}
+    disks
+  end
+
+end

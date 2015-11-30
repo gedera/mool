@@ -1,0 +1,8 @@
+en:
+  process:
+    status:
+      uninterruptible_sleep: 'Uninterruptible sleep'
+      running: 'Running'
+      sleeping: 'Sleeping'
+      traced_or_stopped: 'Stopped'
+      zombie: 'Zombie'
