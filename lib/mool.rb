@@ -1,6 +1,8 @@
 mydir = File.expand_path(File.dirname(__FILE__))
 
 require 'i18n'
+I18n.load_path += Dir[File.join(mydir, 'locales', '*.yml')]
+
 require 'mool/version'
 require 'mool/service'
 require 'mool/cpu'
@@ -8,8 +10,6 @@ require 'mool/disk'
 require 'mool/memory'
 require 'mool/load_average'
 
-
-I18n.load_path += Dir[File.join(mydir, 'locales', '*.yml')]
 
 module Mool
   BLOCK_SIZE = 512
