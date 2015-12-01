@@ -1,5 +1,5 @@
 class MoolCpu
-  PAHT_PROC_CPUINFO = "/proc/cpuinfo"
+  PATH_PROC_CPUINFO = "/proc/cpuinfo"
 
   attr_reader :cpu_name, :model_name, :cores, :usr, :nice, :sys, :iowait, :irq, :soft, :steal, :guest, :gnice, :idle, :total
 
