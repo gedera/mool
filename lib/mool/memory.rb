@@ -6,7 +6,7 @@ class MoolMemory
   def initialize()
     File.read(PATH_PROC_MEMORY).scan(/(\S+):\s+(\d+)/).each do |meminfo|
       var = meminfo[0].gsub("(", "_").gsub(")", "").underscore
-      instance_variable_set("@#{var}", (meminfo[1].to_f * Mool::KBYTES).round(2))
+      instance_variable_set("@#{var}", (meminfo[1].to_f * Mool::PARSE_TYPES[Mool::KBYTES]).round(2))
       class_eval{attr_accessor var.to_sym}
     end
     @unity = Mool::BYTES
