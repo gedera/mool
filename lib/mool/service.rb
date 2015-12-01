@@ -26,8 +26,8 @@ class MoolService
     end
   end
 
-  def self.load_services(services)
-    raise "Please only use hash type!" if services.class != Array
+  def self.all(services)
+    raise "Please only use Array type!" if services.class != Array
     _services = {}
     services.each do |service|
       _services[service[:name]] = MoolService.new(service[:name], service[:pattern])
