@@ -10,7 +10,7 @@ class MoolService
   def initialize(name, pattern)
     raise "Please only use string types!" if (name.class != String or pattern.class != String)
     @messure = []
-    `top -c -b -n1 | egrep "#{name}\|#{pattern}" | grep -v "grep"`.scan(/[\s+](\d+)\s+(\S+)\s+(\d+)\s+(\d+)\s+\d+\s+(\d+)\s+\d+\s+(\S)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)/).each do |result|
+    `top -c -b -n1 | egrep "#{pattern}" | grep -v "grep"`.scan(/[\s+](\d+)\s+(\S+)\s+(\d+)\s+(\d+)\s+\d+\s+(\d+)\s+\d+\s+(\S)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)/).each do |result|
       @messure << { :name           => name,
                     :pattern        => pattern,
                     :pid            => result[0],
