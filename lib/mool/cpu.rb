@@ -1,11 +1,12 @@
 class MoolCpu
   PATH_PROC_CPUINFO = "/proc/cpuinfo"
+  PROCESSORS = File.read(PATH_PROC_CPUINFO).scan(/processor\t*: (\d+)/).flatten + ["all"]
 
   attr_reader :cpu_name, :model_name, :cores, :usr, :nice, :sys, :iowait, :irq, :soft, :steal, :guest, :gnice, :idle, :total
 
   # ["all", "1", "2"]
   def initialize(process_number, opt={})
-    raise "Cpu name incorrect!. Posible values: #{MoolCpu.processors.join(",")}" unless MoolCpu.processors.include?(process_number.to_s)
+    raise "Cpu name incorrect!. Posible values: #{MoolCpu::PROCESSORS.join(",")}" unless MoolCpu::PROCESSORS.include?(process_number.to_s)
     result = opt.empty? ? MoolCpu.cpu_info[process_number.to_s] : opt
     @cpu_name = "cpu_#{process_number.to_s}"
     @model_name = result["model_name"]
