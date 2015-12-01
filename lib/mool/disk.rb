@@ -1,7 +1,7 @@
 class MoolDisk
   PATH_DEV_BLOCK = Dir.glob('/sys/dev/block/*')
 
-  attr_reader :path, :major, :minor, :devname, :devtype, :size, :swap, :mount_point, :file_system, :total_block, :block_used, :block_free, :partitions, :slaves
+  attr_accessor :path, :major, :minor, :devname, :devtype, :size, :swap, :mount_point, :file_system, :total_block, :block_used, :block_free, :partitions, :slaves, :unity
 
   def initialize(dev_name)
     @path = PATH_DEV_BLOCK.select{ |entry| ( File.read("#{entry}/dev").include?(dev_name)) ||
@@ -13,6 +13,7 @@ class MoolDisk
     logical_name
     swap
     capacity
+    @unity = Mool::BYTES
     mounting_point
     file_system
   end
@@ -44,9 +45,9 @@ class MoolDisk
   def capacity
     unless (defined?(@total_block) && defined?(@block_used) && defined?(@block_free))
       result = `df`.scan(/(#{@logical_name}|#{@devname})\s+(\d+)\s+(\d+)\s+(\d+)\s+(\S+)/).flatten
-      @total_block = File.read("#{@path}/size").chomp.to_i * 512
-      @block_used  = result[2].to_i * 512
-      @block_free  = result[3].to_i * 512
+      @total_block = File.read("#{@path}/size").chomp.to_f * BLOCK_SIZE
+      @block_used  = result[2].to_f * BLOCK_SIZE
+      @block_free  = result[3].to_f * BLOCK_SIZE
     end
   end
 
@@ -87,4 +88,8 @@ class MoolDisk
     disks
   end
 
+  def to_b;  Mool.parse_to(self, ["@total_block", "@block_used", "@block_free"], Mool::BYTES);  end
+  def to_kb; Mool.parse_to(self, ["@total_block", "@block_used", "@block_free"], Mool::KBYTES); end
+  def to_mb; Mool.parse_to(self, ["@total_block", "@block_used", "@block_free"], Mool::MBYTES); end
+  def to_gb; Mool.parse_to(self, ["@total_block", "@block_used", "@block_free"], Mool::GBYTES); end
 end
