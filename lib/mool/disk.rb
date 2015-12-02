@@ -19,7 +19,7 @@ class MoolDisk
   end
 
   def mounting_point
-    @mount_point ||= File.read("/proc/mounts").scan(/sda1 (\S+)/).flatten.first if File.read("/proc/mounts").include?(@logical_name)
+    @mount_point ||= File.read("/proc/mounts").scan(/#{@logical_name} (\S+)/).flatten.first if File.read("/proc/mounts").include?(@logical_name)
   end
 
   def file_system

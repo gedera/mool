@@ -151,7 +151,7 @@ In this case we have only one messure, but exists especial cases, where the patt
                                                     :priority=>"20" } ]>
 ```
 ### Disk
-It's possible to get disk, partition or virtual device information using dev name **MAJOR:MINOR** ("**8:2**") or device name **sda**, **sda1** or virtual device such as "**lvm-sda2**" or "**md0**".
+It's possible to get disk, partition or virtual device information using dev name **MAJOR:MINOR** ("**8:2**"), device name **sda**, **sda1** or virtual device such as "**lvm-sda2**" or "**md0**".
 ```ruby
     >> MoolDisk.new("8:0")
        #<MoolDisk:0x7fdc6e283f00 @logical_name="sda", @total_block=500107862016.0, @devtype="disk", @mount_point="/boot", @swap=false, @minor="0", @devname="sda", @block_free=0.0, @path="/sys/dev/block/8:0", @major="8", @file_system="ext4", @unity="Bytes", @block_used=0.0>
