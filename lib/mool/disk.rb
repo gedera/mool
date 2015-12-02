@@ -79,6 +79,7 @@ class MoolDisk
     PATH_DEV_BLOCK.each do |entry|
       real_path = `readlink -f #{entry}`.chomp
       disks << MoolDisk.new(entry.split("/").last) if (not real_path.include?("virtual")) &&
+                                                      (not real_path.include?("/sr")) &&
                                                       (not File.exist?("#{real_path}/partition")) &&
                                                       Dir.glob("#{real_path}/slaves/*").empty?
     end
