@@ -47,7 +47,7 @@ class MoolDisk
       result = `df`.scan(/(#{@logical_name}|#{@devname})\s+(\d+)\s+(\d+)\s+(\d+)\s+(\S+)/).flatten
       @total_block = File.read("#{@path}/size").chomp.to_f * Mool::BLOCK_SIZE
       @block_used  = result[2].to_f * Mool::BLOCK_SIZE
-      @block_free  = result[3].to_f * Mool::BLOCK_SIZE
+      @block_free  = @total_block - @block_used
     end
   end
 
