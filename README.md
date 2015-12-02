@@ -303,6 +303,13 @@ Other way is get all disk with yours parititons and slaves.
              slaves: []
 ```
 
+Swap partition:
+
+```ruby
+    >> MoolDisk.swap
+       #<MoolDisk:0x7f711644d890 @file_system="cgroup", @unity="Bytes", @block_used=0.0, @logical_name="sda2", @total_block=1073741824.0, @minor="2", @devtype="partition", @path="/sys/dev/block/8:2", @swap=true, @major="8", @devname="sda2", @block_free=1073741824.0>
+```
+
 ### Version
 0.0.1
 
