@@ -5,11 +5,12 @@ class MoolService
                      "T" => I18n.t("process.status.traced_or_stopped"),
                      "Z" => I18n.t("process.status.zombie") }
 
-  attr_reader :messure
+  attr_reader :messure, :pattern
 
   def initialize(name, pattern)
     raise "Please only use string types!" if (name.class != String or pattern.class != String)
     @messure = []
+    @pattern = pattern
     `top -c -b -n1 | egrep "#{pattern}" | grep -v "grep"`.scan(/[\s+](\d+)\s+(\S+)\s+(\d+)\s+(\d+)\s+\d+\s+(\d+)\s+\d+\s+(\S)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)/).each do |result|
       @messure << { :name           => name,
                     :pattern        => pattern,
