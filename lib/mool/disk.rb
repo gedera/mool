@@ -93,4 +93,9 @@ class MoolDisk
   def to_kb; Mool.parse_to(self, ["@total_block", "@block_used", "@block_free"], Mool::KBYTES); end
   def to_mb; Mool.parse_to(self, ["@total_block", "@block_used", "@block_free"], Mool::MBYTES); end
   def to_gb; Mool.parse_to(self, ["@total_block", "@block_used", "@block_free"], Mool::GBYTES); end
+
+  def self.swap
+    result = File.read("/proc/swaps").scan(/.*\n\/dev\/(\S+)/).flatten.first
+    MoolDisk.new(result) unless nil
+  end
 end
