@@ -96,6 +96,6 @@ class MoolDisk
 
   def self.swap
     result = File.read("/proc/swaps").scan(/.*\n\/dev\/(\S+)/).flatten.first
-    MoolDisk.new(result) unless nil
+    MoolDisk.new(result) unless result.nil?
   end
 end
