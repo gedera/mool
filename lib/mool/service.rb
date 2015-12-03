@@ -7,11 +7,14 @@ class MoolService
 
   attr_reader :messure, :pattern
 
-  def initialize(name, pattern)
+  def initialize(name, pattern, opt={})
     raise "Please only use string types!" if (name.class != String or pattern.class != String)
     @messure = []
     @pattern = pattern
-    `top -c -b -n1 | egrep "#{pattern}" | grep -v "grep"`.scan(/[\s+](\d+)\s+(\S+)\s+(\d+)\s+(\d+)\s+\d+\s+(\d+)\s+\d+\s+(\S)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)/).each do |result|
+
+    top_result = opt[:top_result] || MoolService.top_parser(MoolService.top, pattern)
+
+    top_result.each do |result|
       @messure << { :name           => name,
                     :pattern        => pattern,
                     :pid            => result[0],
@@ -30,10 +33,20 @@ class MoolService
   def self.all(services)
     raise "Please only use Array type!" if services.class != Array
     _services = {}
+    command_top = MoolService.top
     services.each do |service|
-      _services[service[:name]] = MoolService.new(service[:name], service[:pattern])
+      _services[service[:name]] = MoolService.new(service[:name], service[:pattern], { :top_result => top_parser(command_top, service[:pattern])})
     end
     _services
+  end
+
+  private
+
+  def self.top; `top -c -b -n1`; end
+
+  def self.top_parser(command, pattern)
+    pattern = pattern.gsub('/','\/')
+    command.scan(/[\s+](\d+)\s+(\S+)\s+(\d+)\s+(\d+)\s+\d+\s+(\d+)\s+\d+\s+(\S)\s+(\S+)\s+(\S+)\s+(\S+)\s+.*(#{pattern}).*/)
   end
 
 end
