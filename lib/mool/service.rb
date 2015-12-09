@@ -12,41 +12,61 @@ class MoolService
     @messure = []
     @pattern = pattern
 
-    top_result = opt[:top_result] || MoolService.top_parser(MoolService.top, pattern)
+    result = opt[:result] || MoolService.top_parser(MoolService.top, pattern)
 
-    top_result.each do |result|
-      @messure << { :name           => name,
-                    :pattern        => pattern,
-                    :pid            => result[0],
-                    :user           => result[1],
-                    :priority       => result[2],
-                    :nice           => result[3],
-                    :memory_in_kb   => result[4],
-                    :status         => STATUS_PROCESS[result[5]],
-                    :cpu_percentage => result[6],
-                    :mem_percentage => result[7],
-                    :time           => result[8],
-                    :command        => result[9] }
+    result.each do |res|
+      #pid,user,pcpu,pmem,rss,priority,args,nice, memory_in_kb, status, cpu_percetage, men_percentage, time
+      @messure << { :name               => name,
+                    :pattern            => pattern,
+                    :pid                => res[0],
+                    :user               => res[1],
+                    :cpu_average        => res[2],
+                    :mem_average        => res[3],
+                    :resident_set_size  => res[4],
+                    :priority           => res[5],
+                    :args               => res[6],
+                    :nice               => res[7],
+                    :memory_in_kb       => res[8],
+                    :status             => MoolService::STATUS_PROCESS[res[9]],
+                    :cpu_percentage     => res[10],
+                    :mem_percentage     => res[11],
+                    :time               => res[12]}
     end
   end
+
 
   def self.all(services)
     raise "Please only use Array type!" if services.class != Array
     _services = {}
+
+    command_ps = MoolService.ps
     command_top = MoolService.top
+
     services.each do |service|
-      _services[service[:name]] = MoolService.new(service[:name], service[:pattern], { :top_result => top_parser(command_top, service[:pattern])})
+      _services[service[:name]] = MoolService.new(service[:name],
+                                                  service[:pattern],
+                                                  { :result => MoolService.ps_parser(command_ps, service[:pattern]).collect{ |result| result += MoolService.top_parser(command_top, result[0]).flatten } })
     end
+
     _services
   end
 
-  private
+  def self.ps; `ps --no-headers -o pid,user,pcpu,pmem,rss,priority,args -A`; end
 
   def self.top; `top -c -b -n1`; end
 
-  def self.top_parser(command, pattern)
+  private
+
+  def self.ps_parser(command, pattern)
     pattern = pattern.gsub('/','\/')
-    command.scan(/[\s+](\d+)\s+(\S+)\s+(\d+)\s+(\d+)\s+\d+\s+(\d+)\s+\d+\s+(\S)\s+(\S+)\s+(\S+)\s+(\S+)\s+.*(#{pattern}).*/)
+    # pid,user,pcpu,pmem,rss,priority,args
+    command.scan(/[\s+](\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(#{pattern})/)
+  end
+
+  def self.top_parser(command, pid)
+    # nice, memory_in_kb, status, cpu_percetage, men_percentage, time
+    # command.scan(/[\s+]#{pid}\s+\S+\s+\S+\s+(\S+)\s+\S+\s+(\S+)\s+\S+\s+(\S)\s+(\S+)\s+(\S+)\s+(\S+)\s+.*/)
+    command.scan(/#{pid}\s+\S+\s+\S+\s+(\S+)\s+(\S+)\s+\S+\s+\S+\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+\S+/)
   end
 
 end
