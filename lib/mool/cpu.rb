@@ -27,7 +27,7 @@ class MoolCpu
   def self.cpu_info
     cpu_info = {}
 
-    mpstat = File.read("|mpstat -P ALL 1 1").split("\n\n")[1].split("\n").map{|i| i.gsub(/\d+:\d+:\d+/, '').strip.split(/\s+/) }
+    mpstat = File.read("|mpstat -P ALL 1 1").split("\n\n")[2].split("\n").map{|i| i.gsub(/^\S+:/, '').strip.split(/\s+/) }
     mpstat_vars = mpstat.shift
     mpstat_vars.shift
     mpstat.each do |data|

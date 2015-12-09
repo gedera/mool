@@ -73,6 +73,14 @@ class MoolDisk
     @slaves
   end
 
+  def used_percent
+    @block_used / @total_block
+  end
+
+  def free_percent
+    @block_free / @total_block
+  end
+
   def self.all
     disks = []
 
@@ -97,5 +105,13 @@ class MoolDisk
   def self.swap
     result = File.read("/proc/swaps").scan(/.*\n\/dev\/(\S+)/).flatten.first
     MoolDisk.new(result) unless result.nil?
+  end
+
+  def self.all_usable
+    result = MoolDisk.all
+    result.each do |disk|
+      result += (disk.partitions + disk.slaves + (disk.partitions + disk.slaves).collect{|p| p.partitions + p.slaves }.flatten)
+    end
+    result.reject(&:blank?).select{|d| (d.partitions + d.slaves).blank? }
   end
 end
