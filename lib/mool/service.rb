@@ -25,12 +25,12 @@ class MoolService
                     :resident_set_size  => res[4],
                     :priority           => res[5],
                     :time               => res[6],
-                    :status               => MoolService::STATUS_PROCESS[res[7]],
+                    :status             => MoolService::STATUS_PROCESS[res[7]],
                     :nice               => res[8],
                     :args               => res[9],
                     :memory_in_kb       => res[10],
-                    :cpu_percentage     => res[11],
-                    :mem_percentage     => res[12]}
+                    :cpu_instant        => (res[11] || 0),
+                    :mem_instant        => (res[12] || 0.0)}
     end
   end
 
@@ -67,7 +67,6 @@ class MoolService
     # memory_in_kb, cpu_percetage, men_percentage
     # command.scan(/[\s+]#{pid}\s+\S+\s+\S+\s+(\S+)\s+\S+\s+(\S+)\s+\S+\s+(\S)\s+(\S+)\s+(\S+)\s+(\S+)\s+.*/)
     result = command.scan(/#{pid}\s+\S+\s+\S+\s+\S+\s+(\S+)\s+\S+\s+\S+\s+\S+\s+(\S+)\s+(\S+)\s+\S+\s+\S+/).flatten
-    result.blank? ? [0, 0, 0.0] : result
   end
 
 end
