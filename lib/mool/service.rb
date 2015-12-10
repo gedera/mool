@@ -12,7 +12,7 @@ class MoolService
     @messure = []
     @pattern = pattern
 
-    result = opt[:result] || MoolService.top_parser(MoolService.top, pattern)
+    result = opt[:result] || MoolService.all([{:name => name, :pattern => pattern}])
 
     result.each do |res|
       #pid,user,pcpu,pmem,rss,priority,args,nice, memory_in_kb, status, cpu_percetage, men_percentage, time
@@ -24,13 +24,13 @@ class MoolService
                     :mem_average        => res[3],
                     :resident_set_size  => res[4],
                     :priority           => res[5],
-                    :args               => res[6],
-                    :nice               => res[7],
-                    :memory_in_kb       => res[8],
-                    :status             => MoolService::STATUS_PROCESS[res[9]],
-                    :cpu_percentage     => res[10],
-                    :mem_percentage     => res[11],
-                    :time               => res[12]}
+                    :time               => res[6],
+                    :status               => MoolService::STATUS_PROCESS[res[7]],
+                    :nice               => res[8],
+                    :args               => res[9],
+                    :memory_in_kb       => res[10],
+                    :cpu_percentage     => res[11],
+                    :mem_percentage     => res[12]}
     end
   end
 
@@ -45,13 +45,13 @@ class MoolService
     services.each do |service|
       _services[service[:name]] = MoolService.new(service[:name],
                                                   service[:pattern],
-                                                  { :result => MoolService.ps_parser(command_ps, service[:pattern]).collect{ |result| result += MoolService.top_parser(command_top, result[0]).flatten } })
+                                                  { :result => MoolService.ps_parser(command_ps, service[:pattern]).collect{ |result| result += MoolService.top_parser(command_top, result[0]) } })
     end
 
     _services
   end
 
-  def self.ps; `ps --no-headers -o pid,user,pcpu,pmem,rss,priority,args -A`; end
+  def self.ps; `ps --no-headers -o pid,user,pcpu,pmem,rss,priority,time,stat,nice,args -A`; end
 
   def self.top; `top -c -b -n1`; end
 
@@ -59,14 +59,15 @@ class MoolService
 
   def self.ps_parser(command, pattern)
     pattern = pattern.gsub('/','\/')
-    # pid,user,pcpu,pmem,rss,priority,args
-    command.scan(/[\s+](\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(#{pattern})/)
+    # pid,user,pcpu,pmem,rss,priority,time,stat,nice,args
+    command.scan(/[\s+](\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S)\S*\s+(\S+)\s+(#{pattern})/)
   end
 
   def self.top_parser(command, pid)
-    # nice, memory_in_kb, status, cpu_percetage, men_percentage, time
+    # memory_in_kb, cpu_percetage, men_percentage
     # command.scan(/[\s+]#{pid}\s+\S+\s+\S+\s+(\S+)\s+\S+\s+(\S+)\s+\S+\s+(\S)\s+(\S+)\s+(\S+)\s+(\S+)\s+.*/)
-    command.scan(/#{pid}\s+\S+\s+\S+\s+(\S+)\s+(\S+)\s+\S+\s+\S+\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+\S+/)
+    result = command.scan(/#{pid}\s+\S+\s+\S+\s+\S+\s+(\S+)\s+\S+\s+\S+\s+\S+\s+(\S+)\s+(\S+)\s+\S+\s+\S+/).flatten
+    result.blank? ? [0, 0, 0.0] : result
   end
 
 end
