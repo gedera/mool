@@ -12,7 +12,7 @@ class MoolService
     @messure = []
     @pattern = pattern
 
-    result = opt[:result] || MoolService.all([{:name => name, :pattern => pattern}])
+    result = opt[:result] || MoolService.services_status([{:name => name, :pattern => pattern}])[name]
 
     result.each do |res|
       #pid,user,pcpu,pmem,rss,priority,args,nice, memory_in_kb, status, cpu_percetage, men_percentage, time
@@ -39,16 +39,24 @@ class MoolService
     raise "Please only use Array type!" if services.class != Array
     _services = {}
 
-    command_ps = MoolService.ps
-    command_top = MoolService.top
+    services_data = MoolService.services_status services
 
     services.each do |service|
       _services[service[:name]] = MoolService.new(service[:name],
                                                   service[:pattern],
-                                                  { :result => MoolService.ps_parser(command_ps, service[:pattern]).collect{ |result| result += MoolService.top_parser(command_top, result[0]) } })
+                                                  { :result => services_data[service[:name]] })
     end
-
     _services
+  end
+
+  def self.services_status services
+    command_ps = MoolService.ps
+    command_top = MoolService.top
+    result = {}
+    services.each do |service|
+      result[service[:name]] = MoolService.ps_parser(command_ps, service[:pattern]).collect{ |data| data += MoolService.top_parser(command_top, data[0]) }
+    end
+    result
   end
 
   def self.ps; `ps --no-headers -o pid,user,pcpu,pmem,rss,priority,time,stat,nice,args -A`; end
@@ -60,7 +68,7 @@ class MoolService
   def self.ps_parser(command, pattern)
     pattern = pattern.gsub('/','\/')
     # pid,user,pcpu,pmem,rss,priority,time,stat,nice,args
-    command.scan(/[\s+](\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S)\S*\s+(\S+)\s+(#{pattern})/)
+    command.scan(/$[\s+](\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S)\S*\s+(\S+)\s+(#{pattern})/)
   end
 
   def self.top_parser(command, pid)
