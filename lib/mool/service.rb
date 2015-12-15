@@ -68,7 +68,7 @@ class MoolService
   def self.ps_parser(command, pattern)
     pattern = pattern.gsub('/','\/')
     # pid,user,pcpu,pmem,rss,priority,time,stat,nice,args
-    command.scan(/$[\s+](\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S)\S*\s+(\S+)\s+(#{pattern})/)
+    command.scan(/^\s*(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S)\S*\s+(\S+)\s+.*(#{pattern}).*\n/)
   end
 
   def self.top_parser(command, pid)
