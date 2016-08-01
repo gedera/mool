@@ -40,11 +40,35 @@ It's posible get all cpu information:
      >> MoolCpu.new(0) or MoolCpu.new("0")
        #<MoolCpu:0x7f82959381a8 @nice=0.0, @gnice=0.0, @total=2.0, @irq=0.0, @usr=2.0, @guest=0.0, @iowait=0.0, @cores=2, @steal=0.0, @sys=0.0, @model_name="Intel(R) Core(TM) i3-3220 CPU @ 3.30GHz", @idle=97.0, @cpu_name="cpu_3", @soft=0.0>
    ```
-### Load-Average
+### Load-Average (V. 1.0.1)
 ```ruby
      >>  MoolLoadAverage.new
         #<MoolLoadAverage:0x7f8295931c90 @total_thread_entities=638, @current_loadavg=0.08, @thread_entities_exec=2, @last_15min_loadavg=0.13, @last_pid_process_created=6264, @last_5min_loadavg=0.07>
 ```
+
+### System information (V. 2.0.0)
+Load average:
+
+```ruby
+     >>  MoolSystem.new.load_average
+        { :total_thread_entities => 638, :current_loadavg => 0.08, :thread_entities_exec => 2, :last_15min_loadavg => 0.13, :last_pid_process_created => 6264, :last_5min_loadavg => 0.07 }
+```
+
+uptime:
+
+```ruby
+     >>  MoolSystem.new.uptime
+        { :uptime_day => 4, :uptime_hour => 3, :uptime_minute => 20, :uptime_second => 10 }
+```
+
+Kernel version:
+
+```ruby
+     >>  MoolSystem.new.kernel_version
+        "4.6.0-1-amd64"
+```
+
+
 ### Memory
 ```ruby
      >> MoolMemory.new

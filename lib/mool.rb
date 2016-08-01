@@ -8,8 +8,7 @@ require 'mool/service'
 require 'mool/cpu'
 require 'mool/disk'
 require 'mool/memory'
-require 'mool/load_average'
-
+require 'mool/system'
 
 module Mool
   BLOCK_SIZE = 512
