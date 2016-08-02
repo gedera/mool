@@ -12,6 +12,7 @@ Gem::Specification.new do |gem|
   gem.summary       = "Get operative system information (Linux)"
   gem.homepage      = "https://github.com/gedera/mool"
   gem.license       = "MIT"
+  spec.required_ruby_version = '>= 1.8.6'
 
   gem.files         = `git ls-files`.split($/)
   gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
