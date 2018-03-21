@@ -1,13 +1,13 @@
 class MoolCpu
-  PATH_PROC_CPUINFO = '/proc/cpuinfo'
-  PROCESSORS = File.read(PATH_PROC_CPUINFO).scan(/processor\t*: (\d+)/).flatten + ["all"]
 
   attr_reader :cpu_name, :model_name, :cores, :usr, :nice, :sys, :iowait, :irq, :soft, :steal, :guest, :gnice, :idle, :total
 
   # ["all", "1", "2"]
   def initialize(process_number, opt={})
-    unless MoolCpu::PROCESSORS.include?(process_number.to_s)
-      raise "Cpu name incorrect!. Posible values: #{MoolCpu::PROCESSORS.join(",")}"
+    result = Mool::Cpu.processors
+
+    unless result.include?(process_number.to_s)
+      raise "Cpu name incorrect!. Posible values: #{result.join(', ')}"
     end
     result = opt.empty? ? MoolCpu.cpuinfo[process_number.to_s] : opt
     @cpu_name = "cpu_#{process_number.to_s}"
@@ -47,16 +47,16 @@ class MoolCpu
     cpu_info
   end
 
-  def self.processors
-    cpuinfo_command.scan(/processor\t*: (\d+)/).flatten + ["all"]
-  end
-
   def self.all
     MoolCpu.cpuinfo.map{ |key, value| MoolCpu.new(key, value) }
   end
 
+  def self.processors
+    cpuinfo_command.scan(/processor\t*: (\d+)/).flatten + ["all"]
+  end
+
   def self.cpuinfo_command
-    File.read(MoolCpu::PATH_PROC_CPUINFO)
+    File.read('/proc/cpuinfo')
   end
 
   def self.mpstat_command

@@ -1,14 +1,15 @@
 class MoolDisk
-  PATH_DEV_BLOCK = Dir.glob('/sys/dev/block/*')
-
   attr_accessor :path, :major, :minor, :devname, :devtype, :size, :swap, :mount_point, :file_system, :total_block, :block_used, :block_free, :partitions, :slaves, :unity
 
   def initialize(dev_name)
-    @path = PATH_DEV_BLOCK.select { |entry|
-      (File.read("#{entry}/dev").include?(dev_name)) ||
-        (File.read("#{entry}/uevent").include?(dev_name)) ||
-        (File.exist?("#{entry}/dm/name") &&
-         File.read("#{entry}/dm/name").include?(dev_name)) }.first
+    paths = MoolDisk.dev_block_command.select do |entry|
+      MoolDisk.dev_name_command(entry).include?(dev_name) ||
+        MoolDisk.uevent_command(entry).include?(dev_name) ||
+        MoolDisk.logical_name_command(entry)
+    end
+
+    @path = paths.first
+
     raise "Does't exist #{dev_name}!" if @path.nil?
     read_uevent
     logical_name
@@ -29,7 +30,7 @@ class MoolDisk
 
   def logical_name
     lname = MoolDisk.logical_name_command(@path)
-    lname.present? ? lname : @devname
+    @logical_name = lname.present? ? lname : @devname
   end
 
   def read_uevent
@@ -76,7 +77,7 @@ class MoolDisk
   def slaves
     unless defined? @slaves
       @slaves = []
-      PATH_DEV_BLOCK.select{ |entry| File.directory?("#{entry}/slaves/#{@devname}") }.each do |slave|
+      MoolDisk.dev_block_command.select{ |entry| File.directory?("#{entry}/slaves/#{@devname}") }.each do |slave|
         @slaves << MoolDisk.new(slave.split("/").last)
       end
     end
@@ -177,12 +178,11 @@ class MoolDisk
 
     MoolDisk.dev_block_command.each do |entry|
       real_path = MoolDisk.real_path_block_command(entry)
-      if !real_path.include?('virtual') &&
-         !real_path.include?('/sr') &&
-         !MoolDisk.real_path_command_exist?(real_path) &&
-         MoolDisk.slaves_command(real_path).empty?
-        disks << MoolDisk.new(entry.split('/').last)
-      end
+      next unless !real_path.include?('virtual') &&
+                  !real_path.include?('/sr') &&
+                  !MoolDisk.real_path_command_exist?(real_path) &&
+                  MoolDisk.slaves_command(real_path).empty?
+      disks << MoolDisk.new(entry.split('/').last)
     end
 
     disks.each { |disk| disk.partitions.each { |part| part.partitions && part.slaves }}
@@ -191,15 +191,17 @@ class MoolDisk
   end
 
   def self.swap
-    result = MoolDisk.swap_command.scan(/.*\n\/dev\/(\S+)/).flatten.first
+    result = MoolDisk.swap_command.scan(%r{/.*\n\/dev\/(\S+)/}).flatten.first
     MoolDisk.new(result) unless result.nil?
   end
 
   def self.all_usable
     result = MoolDisk.all
     result.each do |disk|
-      result += (disk.partitions + disk.slaves + (disk.partitions + disk.slaves).collect{|p| p.partitions + p.slaves }.flatten)
+      result += (disk.partitions +
+                 disk.slaves +
+                 (disk.partitions + disk.slaves).collect { |p| p.partitions + p.slaves }.flatten)
     end
-    result.reject(&:blank?).select{ |d| (d.partitions + d.slaves).blank? }
+    result.reject(&:blank?).select { |d| (d.partitions + d.slaves).blank? }
   end
 end

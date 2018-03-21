@@ -6,17 +6,21 @@ I18n.load_path += Dir[File.join(mydir, 'locales', '*.yml')]
 require 'mool/version'
 require 'mool/service'
 require 'mool/cpu'
+require 'mool/load_average'
 require 'mool/disk'
 require 'mool/memory'
 require 'mool/system'
 
 module Mool
   BLOCK_SIZE = 512
-  BYTES = "Bytes"
-  KBYTES = "KBytes"
-  MBYTES = "MBytes"
-  GBYTES = "GBytes"
-  PARSE_TYPES = { BYTES => 1, KBYTES => 2**10, MBYTES => 2**20, GBYTES => 2**30 }
+  BYTES = 'Bytes'.freeze
+  KBYTES = 'KBytes'.freeze
+  MBYTES = 'MBytes'.freeze
+  GBYTES = 'GBytes'.freeze
+  PARSE_TYPES = { BYTES => 1,
+                  KBYTES => 2**10,
+                  MBYTES => 2**20,
+                  GBYTES => 2**30 }.freeze
 
   def self.parse_to(obj, vars, parse)
     vars.each do |var|
