@@ -64,9 +64,9 @@ module Mool
       result
     end
 
-    def self.services_status services
-      command_ps = Mool::Process.ps_command
-      command_top = Mool::Process.top_command
+    def self.services_status(services)
+      command_ps = Mool::Command.ps_command
+      command_top = Mool::Command.top_command
       result = {}
       services.each do |service|
         ps_parsed = Mool::Process.ps_parser(
@@ -78,14 +78,6 @@ module Mool
         end
       end
       result
-    end
-
-    def self.ps_command
-      `ps --no-headers -o pid,user,pcpu,pmem,rss,priority,time,stat,nice,args -A`
-    end
-
-    def self.top_command
-      `top -c -b -n1`
     end
 
     private

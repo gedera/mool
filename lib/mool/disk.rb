@@ -17,7 +17,7 @@ module Mool
                   :unity
 
     def initialize(dev_name)
-      paths = Mool::Disk.dev_block_command.select do |entry|
+      paths = Mool::Command.dev_block_command.select do |entry|
         Mool::Disk.dev_name_command(entry).include?(dev_name) ||
           Mool::Disk.uevent_command(entry).include?(dev_name) ||
           Mool::Disk.logical_name_command(entry)
@@ -36,14 +36,14 @@ module Mool
     end
 
     def mounting_point
-      MoolDisk.mount_command.include?(@logical_name) &&
-        @mount_point ||= MoolDisk.mount_command.scan(
+      Mool::Command.mount_command.include?(@logical_name) &&
+        @mount_point ||= Mool::Command.mount_command.scan(
         /#{@logical_name} (\S+)/
       ).flatten.first
     end
 
     def file_system
-      files = MoolDisk.file_system_command.select do |a|
+      files = Mool::Command.file_system_command.select do |a|
         a.include?(@devname)
       end
 
@@ -52,7 +52,7 @@ module Mool
     end
 
     def logical_name
-      lname = MoolDisk.logical_name_command(@path)
+      lname = Mool::Command.logical_name_command(@path)
       @logical_name = lname.present? ? lname : @devname
     end
 
@@ -60,7 +60,7 @@ module Mool
       @major,
       @minor,
       @devname,
-      @devtype = MoolDisk.uevent_command(@path).scan(
+      @devtype = Mool::Command.uevent_command(@path).scan(
         /.*=(\d+)\n.*=(\d+)\n.*=(\S+)\n.*=(\w+)\n/
       ).flatten
     end
@@ -78,15 +78,15 @@ module Mool
     end
 
     def swap
-      @swap ||= MoolDisk.swap_command(@logical_name).present?
+      @swap ||= Mool::Command.swap_command(@logical_name).present?
     end
 
     def capacity
       return if defined?(@total_block) && defined?(@block_used) && defined?(@block_free)
-      result = MoolDisk.df_command.scan(
+      result = Mool::Command.df_command.scan(
         /(#{@logical_name}|#{@devname})\s+(\d+)\s+(\d+)\s+(\d+)\s+(\S+)/
       ).flatten
-      @total_block = MoolDisk.capacity_partition_command(@path).chomp.to_f *
+      @total_block = Mool::Command.capacity_partition_command(@path).chomp.to_f *
                      Mool::BLOCK_SIZE
       @block_used  = result[2].to_f * Mool::BLOCK_SIZE
       @block_free  = @total_block - @block_used
@@ -95,7 +95,7 @@ module Mool
     def partitions
       return @partitions if defined? @partitions
       return unless is_disk?
-      @partitions = MoolDisk.partitions_command(
+      @partitions = Mool::Command.partitions_command(
         @path,
         @devname
       ).map do |part|
@@ -105,7 +105,7 @@ module Mool
 
     def slaves
       return @slaves if defined? @slaves
-      blocks = MoolDisk.dev_block_command.select do |entry|
+      blocks = Mool::Command.dev_block_command.select do |entry|
         File.directory?("#{entry}/slaves/#{@devname}")
       end
 
@@ -154,64 +154,15 @@ module Mool
                     Mool::GBYTES)
     end
 
-    def self.df_command
-      `df`
-    end
-
-    def self.mount_command
-      File.read('/proc/mounts')
-    end
-
-    def self.file_system_command
-      Dir.glob('/sys/fs/**/*')
-    end
-
-    def self.logical_name_command(path)
-      File.exist?("#{path}/dm/name") ? File.read("#{path}/dm/name").chomp : nil
-    end
-
-    def self.uevent_command(path)
-      File.read("#{path}/uevent")
-    end
-
-    def self.swap_command(lname = nil)
-      result = File.read('/proc/swaps')
-      lname.present? ? result[/#{lname} /] : result
-    end
-
-    def self.capacity_partition_command(path)
-      File.read("#{path}/size")
-    end
-
-    def self.partitions_command(path, devname)
-      Dir.glob("#{path}/#{devname}*")
-    end
-
-    def self.dev_block_command
-      Dir.glob('/sys/dev/block/*')
-    end
-
-    def self.real_path_block_command(entry)
-      `readlink -f #{entry}`.chomp
-    end
-
-    def self.real_path_command_exist?(real_path)
-      File.exist?("#{real_path}/partition")
-    end
-
-    def self.slaves_command(real_path)
-      Dir.glob("#{real_path}/slaves/*")
-    end
-
     def self.all
       disks = []
 
-      Mool::Disk.dev_block_command.each do |entry|
-        real_path = Mool::Disk.real_path_block_command(entry)
+      Mool::Command.dev_block_command.each do |entry|
+        real_path = Mool::Command.real_path_block_command(entry)
         next unless !real_path.include?('virtual') &&
                     !real_path.include?('/sr') &&
-                    !Mool::Disk.real_path_command_exist?(real_path) &&
-                    Mool::Disk.slaves_command(real_path).empty?
+                    !Mool::Command.real_path_command_exist?(real_path) &&
+                    Mool::Command.slaves_command(real_path).empty?
         disks << Mool::Disk.new(entry.split('/').last)
       end
 
@@ -221,7 +172,7 @@ module Mool
     end
 
     def self.swap
-      result = Mool::Disk.swap_command.scan(%r{/.*\n\/dev\/(\S+)/}).flatten.first
+      result = Mool::Command.swap_command.scan(%r{/.*\n\/dev\/(\S+)/}).flatten.first
       Mool::Disk.new(result) unless result.nil?
     end
 

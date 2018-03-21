@@ -13,8 +13,8 @@ module Mool
                 :uptime_second
 
     def initialize
-      @kernel = Mool::System.uname_command
-      load_avg = Mool::System.loadavg_command.split(' ')
+      @kernel = Mool::Command.uname_command
+      load_avg = Mool::Command.loadavg_command.split(' ')
       @current_loadavg          = load_avg[0].to_f
       @last_5min_loadavg        = load_avg[1].to_f
       @last_15min_loadavg       = load_avg[2].to_f
@@ -23,7 +23,7 @@ module Mool
       # Number of kernel scheduling entities that currently exist on the system
       @total_thread_entities    = load_avg[3].split('/').last.to_i
       @last_pid_process_created = load_avg[4].to_i
-      time = Mool::System.uptime_command.split(' ').first.to_f
+      time = Mool::Command.uptime_command.split(' ').first.to_f
       mm, ss = time.divmod(60)
       hh, mm = mm.divmod(60)
       dd, hh = hh.divmod(24)
@@ -55,18 +55,6 @@ module Mool
 
     def kernel_version
       @kernel
-    end
-
-    def self.uname_command
-      `uname -r`.chomp
-    end
-
-    def self.uptime_command
-      `cat /proc/uptime`.chomp
-    end
-
-    def self.loadavg_command
-      File.read('/proc/loadavg').chomp
     end
   end
 end

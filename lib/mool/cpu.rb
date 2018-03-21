@@ -22,7 +22,7 @@ module Mool
       unless result.include?(process_number.to_s)
         raise "Cpu name incorrect!. Posible values: #{result.join(', ')}"
       end
-      result = opt.empty? ? Mool::Cpu.cpuinfo[process_number.to_s] : opt
+      result = opt.empty? ? Mool::Command.cpuinfo[process_number.to_s] : opt
       @cpu_name = "cpu_#{process_number}"
       @model_name = result['model_name']
       @cores      = result['cpu_cores'].to_i
@@ -46,18 +46,10 @@ module Mool
                      @guest].sum
     end
 
-    def self.cpuinfo_command
-      File.read('/proc/cpuinfo')
-    end
-
-    def self.mpstat_command
-      File.read('|mpstat -P ALL 1 1')
-    end
-
     def self.cpuinfo
       cpu_info = {}
 
-      mpstat = mpstat_command.split("\n\n")[2].split("\n").map do |i|
+      mpstat = Mool::Command.mpstat_command.split("\n\n")[2].split("\n").map do |i|
         i.gsub(/^\S+:/, '').strip.split(/\s+/)
       end
 
@@ -71,8 +63,8 @@ module Mool
         cpu_info.merge!(core_name => res)
       end
 
-      cpuinfo_command.gsub(/([^\n])\n([^\n])/,
-                           '\1 \2').scan(/processor\t*: (\d+).*model name\t*: (.*) stepping.*cpu cores\t*: (\d+)/).each do |v|
+      Mool::Command.cpuinfo_command.gsub(/([^\n])\n([^\n])/,
+                                         '\1 \2').scan(/processor\t*: (\d+).*model name\t*: (.*) stepping.*cpu cores\t*: (\d+)/).each do |v|
         cpu_info[v[0]]['model_name'] = v[1]
         cpu_info[v[0]]['cpu_cores'] = v[2]
       end
@@ -81,7 +73,7 @@ module Mool
     end
 
     def self.processors
-      cpuinfo_command.scan(/processor\t*: (\d+)/).flatten + ['all']
+      Mool::Command.cpuinfo_command.scan(/processor\t*: (\d+)/).flatten + ['all']
     end
 
     def self.all

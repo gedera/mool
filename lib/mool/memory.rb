@@ -4,8 +4,8 @@ module Mool
     attr_accessor :unity, :mem_used
 
     def initialize
-      Mool::Memory.meminfo_command.scan(/(\S+):\s+(\d+)/).each do |meminfo|
-        var = meminfo[0].gsub('(', '_').gsub(')', '').underscore
+      Mool::Command.meminfo_command.scan(/(\S+):\s+(\d+)/).each do |meminfo|
+        var = meminfo[0].tr('(', '_').tr(')', '').underscore
         instance_variable_set(
           "@#{var}",
           (meminfo[1].to_f * Mool::PARSE_TYPES[Mool::KBYTES]).round(2)
@@ -49,10 +49,6 @@ module Mool
         (instance_variable_names - ["@unity"]),
         Mool::GBYTES
       )
-    end
-
-    def self.meminfo_command
-      File.read('/proc/meminfo')
     end
   end
 end

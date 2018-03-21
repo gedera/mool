@@ -2,6 +2,7 @@
    disk
    memory
    system
+   command
    version].each do |file|
   require "mool/#{file}"
 end
