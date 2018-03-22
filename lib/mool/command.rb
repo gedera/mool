@@ -63,7 +63,8 @@ module Mool
     end
 
     def self.ps_command
-      `ps --no-headers -o pid,user,pcpu,pmem,rss,priority,time,stat,nice,args -A`
+      # `ps --no-headers -o pid,user,pcpu,pmem,rss,priority,time,stat,nice,args -A`
+      `ps --no-headers -o ruser,user,rgroup,group,pid,ppid,pgid,pcpu,vsz,nice,etime,time,tty,comm,args=HEADER -A`
     end
 
     def self.top_command

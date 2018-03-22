@@ -1,8 +1,9 @@
-%w[cpu
+%w[command
+   cpu
    disk
    memory
    system
-   command
+   process
    version].each do |file|
   require "mool/#{file}"
 end

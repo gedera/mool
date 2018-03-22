@@ -17,6 +17,10 @@ Or install it yourself as:
     $ gem install mool
 ```
 
+## Package required
+
+- sysstat: `sudo aptitude install sysstat`
+
 ## Usage
 ### CPU
 You can check the posible values to use with:
@@ -26,13 +30,83 @@ You can check the posible values to use with:
 ```
 It's posible get all cpu information:
 ```ruby
-    > MoolCpu.all
+    > Mool::Cpu.all
     [
-      [0] #<MoolCpu:0x7f82959381a8 @nice=0.0, @gnice=0.0, @total=2.0, @irq=0.0, @usr=2.0, @guest=0.0, @iowait=0.0, @cores=2, @steal=0.0, @sys=0.0, @model_name="Intel(R) Core(TM) i3-3220 CPU @ 3.30GHz", @idle=97.0, @cpu_name="cpu_3", @soft=0.0>,
-      [1] #<MoolCpu:0x7f8295937ca8 @nice=0.0, @gnice=0.0, @total=1.0, @irq=0.0, @usr=1.0, @guest=0.0, @iowait=0.0, @cores=2, @steal=0.0, @sys=0.0, @model_name="Intel(R) Core(TM) i3-3220 CPU @ 3.30GHz", @idle=97.0, @cpu_name="cpu_2", @soft=0.0>,
-      [2] #<MoolCpu:0x7f82959377a8 @nice=0.0, @gnice=0.0, @total=3.0, @irq=0.0, @usr=1.0, @guest=0.0, @iowait=2.0, @cores=2, @steal=0.0, @sys=0.0, @model_name="Intel(R) Core(TM) i3-3220 CPU @ 3.30GHz", @idle=96.0, @cpu_name="cpu_1", @soft=0.0>,
-      [3] #<MoolCpu:0x7f82959372a8 @nice=0.0, @gnice=0.0, @total=4.0, @irq=0.0, @usr=3.0, @guest=0.0, @iowait=0.0, @cores=2, @steal=0.0, @sys=1.0, @model_name="Intel(R) Core(TM) i3-3220 CPU @ 3.30GHz", @idle=95.0, @cpu_name="cpu_0", @soft=0.0>,
-      [4] #<MoolCpu:0x7f8295936da8 @nice=0.0, @gnice=0.0, @total=2.0, @irq=0.0, @usr=2.0, @guest=0.0, @iowait=0.0, @cores=0, @steal=0.0, @sys=0.0, @model_name=nil, @idle=96.0, @cpu_name="cpu_all", @soft=0.0>
+      [0] #<Mool::Cpu:0x7f82959381a8
+            @nice=0.0,
+            @gnice=0.0,
+            @total=2.0,
+            @irq=0.0,
+            @usr=2.0,
+            @guest=0.0,
+            @iowait=0.0,
+            @cores=2,
+            @steal=0.0,
+            @sys=0.0,
+            @model_name="Intel(R) Core(TM) i3-3220 CPU @ 3.30GHz",
+            @idle=97.0,
+            @cpu_name="cpu_3",
+            @soft=0.0>,
+      [1] #<Mool::Cpu:0x7f8295937ca8
+            @nice=0.0,
+            @gnice=0.0,
+            @total=1.0,
+            @irq=0.0,
+            @usr=1.0,
+            @guest=0.0,
+            @iowait=0.0,
+            @cores=2,
+            @steal=0.0,
+            @sys=0.0,
+            @model_name="Intel(R) Core(TM) i3-3220 CPU @ 3.30GHz",
+            @idle=97.0,
+            @cpu_name="cpu_2",
+            @soft=0.0>,
+      [2] #<Mool::Cpu:0x7f82959377a8
+            @nice=0.0,
+            @gnice=0.0,
+            @total=3.0,
+            @irq=0.0,
+            @usr=1.0,
+            @guest=0.0,
+            @iowait=2.0,
+            @cores=2,
+            @steal=0.0,
+            @sys=0.0,
+            @model_name="Intel(R) Core(TM) i3-3220 CPU @ 3.30GHz",
+            @idle=96.0,
+            @cpu_name="cpu_1",
+            @soft=0.0>,
+      [3] #<Mool::Cpu:0x7f82959372a8
+            @nice=0.0,
+            @gnice=0.0,
+            @total=4.0,
+            @irq=0.0,
+            @usr=3.0,
+            @guest=0.0,
+            @iowait=0.0,
+            @cores=2,
+            @steal=0.0,
+            @sys=1.0,
+            @model_name="Intel(R) Core(TM) i3-3220 CPU @ 3.30GHz",
+            @idle=95.0,
+            @cpu_name="cpu_0",
+            @soft=0.0>,
+      [4] #<Mool::Cpu:0x7f8295936da8
+            @nice=0.0,
+            @gnice=0.0,
+            @total=2.0,
+            @irq=0.0,
+            @usr=2.0,
+            @guest=0.0,
+            @iowait=0.0,
+            @cores=0,
+            @steal=0.0,
+            @sys=0.0,
+            @model_name=nil,
+            @idle=96.0,
+            @cpu_name="cpu_all",
+            @soft=0.0>
 ]
 ```
  Or can get a specific cpu information:
@@ -40,12 +114,6 @@ It's posible get all cpu information:
      >> MoolCpu.new(0) or MoolCpu.new("0")
        #<MoolCpu:0x7f82959381a8 @nice=0.0, @gnice=0.0, @total=2.0, @irq=0.0, @usr=2.0, @guest=0.0, @iowait=0.0, @cores=2, @steal=0.0, @sys=0.0, @model_name="Intel(R) Core(TM) i3-3220 CPU @ 3.30GHz", @idle=97.0, @cpu_name="cpu_3", @soft=0.0>
    ```
-### Load-Average (V. 1.0.1)
-```ruby
-     >>  MoolLoadAverage.new
-        #<MoolLoadAverage:0x7f8295931c90 @total_thread_entities=638, @current_loadavg=0.08, @thread_entities_exec=2, @last_15min_loadavg=0.13, @last_pid_process_created=6264, @last_5min_loadavg=0.07>
-```
-
 ### System information (V. 2.0.0)
 Load average:
 
@@ -126,88 +194,250 @@ By default the values are in Bytes. So it's posible to changed to different unit
       >> MoolMemory.new.to_mb
       >> MoolMemory.new.to_gb
 ```
-## Service or Process
+## Process
 To get process information you can provide two params:
 1) **name**: This name it's used as key.
 2) **pattern**: Used to match with the command top.
 ```ruby
-     >> MoolService.new("profanity Process", "profanity")
-        #<MoolService:0x7f4c23f929e8 @messure=[{ :status=>"Sleeping",
-                                                 :command=>"profanity",
-                                                 :time=>"0:08.22",
-                                                 :pattern=>"profanity",
-                                                 :nice=>"0",
-                                                 :pid=>"1764",
-                                                 :memory_in_kb=>"34376",
-                                                 :user=>"mool",
-                                                 :cpu_percentage=>"0,0",
-                                                 :name=>"profanity Process",
-                                                 :mem_percentage=>"0,3",
-                                                 :priority=>"20" }]>
+     >> Mool::Process.new("Slim Process", "slim")
+        => #<Mool::Process:0x000055618b982fc8
+        @messures=
+          [{:name=>"Slim Process",
+            :pattern=>"slim",
+            :ruser=>"root",
+            :user=>"root",
+            :rgroup=>"root",
+            :group=>"root",
+            :pid=>"792",
+            :ppid=>"1",
+            :pgid=>"792",
+            :pcpu=>"0.0",
+            :vsz=>"167452",
+            :nice=>"0",
+            :etime=>"23-06:15:22",
+            :time=>"00:00:00",
+            :tty=>"?",
+            :comm=>"slim",
+            :args=>"/usr/bin/slim -nodaemon",
+            :priority=>"20",
+            :virt=>"167452",
+            :res=>"38620",
+            :shr=>"7072",
+            :status=>:sleeping,
+            :cpu_percentage=>"0,0",
+            :mem_percentage=>"0,3",
+            :time_plus=>"0,3"}],
+        @pattern="slim">
 ```
 
 In this case we have only one messure, but exists especial cases, where the pattern match with more than one process. This cases will have more than one messure, such as:
 ```ruby
-       >> MoolService.new("Terminal", "urxvt")
-          #<MoolService:0x7f4c23f88f88 @messure=[ { :status=>"Sleeping",
-                                                    :command=>"urxvt",
-                                                    :time=>"0:02.80",
-                                                    :pattern=>"urxvt",
-                                                    :nice=>"0",
-                                                    :pid=>"1672",
-                                                    :memory_in_kb=>"16152",
-                                                    :user=>"mool",
-                                                    :cpu_percentage=>"0,0",
-                                                    :name=>"Terminal",
-                                                    :mem_percentage=>"0,1",
-                                                    :priority=>"20" },
-                                                  { :status=>"Sleeping",
-                                                    :command=>"urxvt",
-                                                    :time=>"0:00.00",
-                                                    :pattern=>"urxvt",
-                                                    :nice=>"0",
-                                                    :pid=>"1673",
-                                                    :memory_in_kb=>"4020",
-                                                    :user=>"mool",
-                                                    :cpu_percentage=>"0,0",
-                                                    :name=>"Terminal",
-                                                    :mem_percentage=>"0,0",
-                                                    :priority=>"20" } ]>
+       >> Mool::Process.new("Terminal", "urxvt")
+          => #<Mool::Process:0x000055618be9a268
+          @messures=
+            [{:name=>"URXVT Process",
+              :pattern=>"urxvt",
+              :ruser=>"gabriel",
+              :user=>"gabriel",
+              :rgroup=>"gabriel",
+              :group=>"gabriel",
+              :pid=>"2040",
+              :ppid=>"1",
+              :pgid=>"2040",
+              :pcpu=>"0.0",
+              :vsz=>"118676",
+              :nice=>"0",
+              :etime=>"9-03:04:45",
+              :time=>"00:00:55",
+              :tty=>"?",
+              :comm=>"urxvt",
+              :args=>"urxvt",
+              :priority=>"20",
+              :virt=>"118676",
+              :res=>"24280",
+              :shr=>"11192",
+              :status=>:sleeping,
+              :cpu_percentage=>"0,0",
+              :mem_percentage=>"0,2",
+              :time_plus=>"0,2"},
+             {:name=>"URXVT Process",
+              :pattern=>"urxvt",
+              :ruser=>"gabriel",
+              :user=>"gabriel",
+              :rgroup=>"gabriel",
+              :group=>"utmp",
+              :pid=>"2041",
+              :ppid=>"2040",
+              :pgid=>"2040",
+              :pcpu=>"0.0",
+              :vsz=>"95560",
+              :nice=>"0",
+              :etime=>"9-03:04:45",
+              :time=>"00:00:00",
+              :tty=>"?",
+              :comm=>"urxvt",
+              :args=>"urxvt",
+              :priority=>"20",
+              :virt=>"95560",
+              :res=>"4160",
+              :shr=>"3480",
+              :status=>:sleeping,
+              :cpu_percentage=>"0,0",
+              :mem_percentage=>"0,0",
+              :time_plus=>"0,0"}],
+          @pattern="urxvt">
 ```
 ### Disk
 It's possible to get disk, partition or virtual device information using dev name **MAJOR:MINOR** ("**8:2**"), device name **sda**, **sda1** or virtual device such as "**lvm-sda2**" or "**md0**".
 ```ruby
-    >> MoolDisk.new("8:0")
-       #<MoolDisk:0x7fdc6e283f00 @logical_name="sda", @total_block=500107862016.0, @devtype="disk", @mount_point="/boot", @swap=false, @minor="0", @devname="sda", @block_free=0.0, @path="/sys/dev/block/8:0", @major="8", @file_system="ext4", @unity="Bytes", @block_used=0.0>
-    >> MoolDisk.new("sda1")
-       #<MoolDisk:0x7fdc6e266a40 @logical_name="sda1", @total_block=262144000.0, @devtype="partition", @mount_point="/boot", @swap=false, @minor="1", @devname="sda1", @block_free=59062784.0, @path="/sys/dev/block/8:1", @major="8", @file_system="ext4", @unity="Bytes", @block_used=57123840.0>
-    >> MoolDisk.new("sdblvm-homelvm")
-       #<MoolDisk:0x7fdc6e248658 @logical_name="sdblvm-homelvm", @total_block=445602856960.0, @devtype="disk", @mount_point="/boot", @swap=false, @minor="3", @devname="dm-3", @block_free=187429210112.0, @path="/sys/dev/block/252:3", @major="252", @file_system="btrfs", @unity="Bytes", @block_used=34269296640.0>
+    >> Mool::Disk.new("8:0")
+       #<Mool::Disk:0x7fdc6e283f00 @logical_name="sda",
+                                   @total_block=500107862016.0,
+                                   @devtype="disk",
+                                   @mount_point="/boot",
+                                   @swap=false,
+                                   @minor="0",
+                                   @devname="sda",
+                                   @block_free=0.0,
+                                   @path="/sys/dev/block/8:0",
+                                   @major="8",
+                                   @file_system="ext4",
+                                   @unity="Bytes",
+                                   @block_used=0.0>
+    >> Mool::Disk.new("sda1")
+       #<Mool::Disk:0x7fdc6e266a40 @logical_name="sda1",
+                                   @total_block=262144000.0,
+                                   @devtype="partition",
+                                   @mount_point="/boot",
+                                   @swap=false,
+                                   @minor="1",
+                                   @devname="sda1",
+                                   @block_free=59062784.0,
+                                   @path="/sys/dev/block/8:1",
+                                   @major="8",
+                                   @file_system="ext4",
+                                   @unity="Bytes",
+                                   @block_used=57123840.0>
+    >> Mool::Disk.new("sdblvm-homelvm")
+       #<Mool::Disk:0x7fdc6e248658 @logical_name="sdblvm-homelvm",
+                                   @total_block=445602856960.0,
+                                   @devtype="disk",
+                                   @mount_point="/boot",
+                                   @swap=false,
+                                   @minor="3",
+                                   @devname="dm-3",
+                                   @block_free=187429210112.0,
+                                   @path="/sys/dev/block/252:3",
+                                   @major="252",
+                                   @file_system="btrfs",
+                                   @unity="Bytes",
+                                   @block_used=34269296640.0>
 ```
 It's possible get all partition if the object is `@devtype="disk"`, such as:
 ```ruby
-    >> MoolDisk.new("sda").partitions
+    >> Mool::Disk.new("sda").partitions
     [
-      [0] #<MoolDisk:0x7fdc6eb3cd18 @logical_name="sda1", @total_block=262144000.0, @devtype="partition", @mount_point="/boot", @swap=false, @minor="1", @devname="sda1", @block_free=59062784.0, @path="/sys/dev/block/8:1", @major="8", @file_system="ext4", @unity="Bytes", @block_used=57123840.0>,
-      [1] #<MoolDisk:0x7fdc6e9e7788 @logical_name="sda2", @total_block=1073741824.0, @devtype="partition", @swap=true, @minor="2", @devname="sda2", @block_free=0.0, @path="/sys/dev/block/8:2", @major="8", @file_system="cgroup", @unity="Bytes", @block_used=0.0>,
-      [2] #<MoolDisk:0x7fdc6e8d7f78 @logical_name="sda3", @total_block=498770927616.0, @devtype="partition", @swap=false, @minor="3", @devname="sda3", @block_free=0.0, @path="/sys/dev/block/8:3", @major="8", @file_system=nil, @unity="Bytes", @block_used=0.0>
+      [0] #<Mool::Disk:0x7fdc6eb3cd18 @logical_name="sda1",
+                                      @total_block=262144000.0,
+                                      @devtype="partition",
+                                      @mount_point="/boot",
+                                      @swap=false,
+                                      @minor="1",
+                                      @devname="sda1",
+                                      @block_free=59062784.0,
+                                      @path="/sys/dev/block/8:1",
+                                      @major="8",
+                                      @file_system="ext4",
+                                      @unity="Bytes",
+                                      @block_used=57123840.0>,
+      [1] #<Mool::Disk:0x7fdc6e9e7788 @logical_name="sda2",
+                                      @total_block=1073741824.0,
+                                      @devtype="partition",
+                                      @swap=true,
+                                      @minor="2",
+                                      @devname="sda2",
+                                      @block_free=0.0,
+                                      @path="/sys/dev/block/8:2",
+                                      @major="8",
+                                      @file_system="cgroup",
+                                      @unity="Bytes",
+                                      @block_used=0.0>,
+      [2] #<Mool::Disk:0x7fdc6e8d7f78 @logical_name="sda3",
+                                      @total_block=498770927616.0,
+                                      @devtype="partition",
+                                      @swap=false,
+                                      @minor="3",
+                                      @devname="sda3",
+                                      @block_free=0.0,
+                                      @path="/sys/dev/block/8:3",
+                                      @major="8",
+                                      @file_system=nil,
+                                      @unity="Bytes",
+                                      @block_used=0.0>
    ]
 ```
 Otherwise it's possible too get the slaves. The slaves are virtual devices for examples `lvm` or `raid`.
 
 ```ruby
-   >> MoolDisk.new("sda3").slaves
+   >> Mool::Disk.new("sda3").slaves
       [
-        [0] #<MoolDisk:0x7fdc6e6bec00 @logical_name="sdblvm-rootlvm", @total_block=32212254720.0, @devtype="disk", @swap=false, @minor="0", @devname="dm-0", @block_free=9739984896.0, @path="/sys/dev/block/252:0", @major="252", @file_system="ext4", @unity="Bytes", @block_used=5232629760.0>,
-        [1] #<MoolDisk:0x7fdc6e672350 @logical_name="sdblvm-tmplvm", @total_block=4294967296.0, @devtype="disk", @mount_point="/boot", @swap=false, @minor="1", @devname="dm-1", @block_free=1926668288.0, @path="/sys/dev/block/252:1", @major="252", @file_system="ext4", @unity="Bytes", @block_used=4227072.0>,
-        [2] #<MoolDisk:0x7fdc6e627ff8 @logical_name="sdblvm-varlvm", @total_block=16106127360.0, @devtype="disk", @mount_point="/boot", @swap=false, @minor="2", @devname="dm-2", @block_free=5497151488.0, @path="/sys/dev/block/252:2", @major="252", @file_system="ext4", @unity="Bytes", @block_used=1951399936.0>,
-        [3] #<MoolDisk:0x7fdc6e5cec78 @logical_name="sdblvm-homelvm", @total_block=445602856960.0, @devtype="disk", @mount_point="/boot", @swap=false, @minor="3", @devname="dm-3", @block_free=187430152192.0, @path="/sys/dev/block/252:3", @major="252", @file_system="btrfs", @unity="Bytes", @block_used=34268366848.0>
+        [0] #<Mool::Disk:0x7fdc6e6bec00 @logical_name="sdblvm-rootlvm",
+                                        @total_block=32212254720.0,
+                                        @devtype="disk",
+                                        @swap=false,
+                                        @minor="0",
+                                        @devname="dm-0",
+                                        @block_free=9739984896.0,
+                                        @path="/sys/dev/block/252:0",
+                                        @major="252",
+                                        @file_system="ext4",
+                                        @unity="Bytes",
+                                        @block_used=5232629760.0>,
+        [1] #<Mool::Disk:0x7fdc6e672350 @logical_name="sdblvm-tmplvm",
+                                        @total_block=4294967296.0,
+                                        @devtype="disk",
+                                        @mount_point="/boot",
+                                        @swap=false,
+                                        @minor="1",
+                                        @devname="dm-1",
+                                        @block_free=1926668288.0,
+                                        @path="/sys/dev/block/252:1",
+                                        @major="252",
+                                        @file_system="ext4",
+                                        @unity="Bytes",
+                                        @block_used=4227072.0>,
+        [2] #<Mool::Disk:0x7fdc6e627ff8 @logical_name="sdblvm-varlvm",
+                                        @total_block=16106127360.0,
+                                        @devtype="disk",
+                                        @mount_point="/boot",
+                                        @swap=false,
+                                        @minor="2",
+                                        @devname="dm-2",
+                                        @block_free=5497151488.0,
+                                        @path="/sys/dev/block/252:2",
+                                        @major="252",
+                                        @file_system="ext4",
+                                        @unity="Bytes",
+                                        @block_used=1951399936.0>,
+        [3] #<Mool::Disk:0x7fdc6e5cec78 @logical_name="sdblvm-homelvm",
+                                        @total_block=445602856960.0,
+                                        @devtype="disk",
+                                        @mount_point="/boot",
+                                        @swap=false,
+                                        @minor="3",
+                                        @devname="dm-3",
+                                        @block_free=187430152192.0,
+                                        @path="/sys/dev/block/252:3",
+                                        @major="252",
+                                        @file_system="btrfs",
+                                        @unity="Bytes",
+                                        @block_used=34268366848.0>
      ]
 ```
 
 Other way is get all disk with yours parititons and slaves.
 ```ruby
-    >> MoolDisk.all
+    >> Mool::Disk.all
        - !ruby/object:MoolDisk
          block_free: 0.0
          block_used: 0.0
@@ -331,11 +561,22 @@ Swap partition:
 
 ```ruby
     >> MoolDisk.swap
-       #<MoolDisk:0x7f711644d890 @file_system="cgroup", @unity="Bytes", @block_used=0.0, @logical_name="sda2", @total_block=1073741824.0, @minor="2", @devtype="partition", @path="/sys/dev/block/8:2", @swap=true, @major="8", @devname="sda2", @block_free=1073741824.0>
+       #<Mool::Disk:0x7f711644d890 @file_system="cgroup",
+                                   @unity="Bytes",
+                                   @block_used=0.0,
+                                   @logical_name="sda2",
+                                   @total_block=1073741824.0,
+                                   @minor="2",
+                                   @devtype="partition",
+                                   @path="/sys/dev/block/8:2",
+                                   @swap=true,
+                                   @major="8",
+                                   @ devname="sda2",
+                                   @block_free=1073741824.0>
 ```
 
 ### Version
-1.0.1
+3.0.0
 
 License
 ----
