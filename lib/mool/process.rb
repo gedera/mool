@@ -118,12 +118,11 @@ module Mool
       #          15 16  17  18   19 20  21   22   23    24
       # PID USER PR NI VIRT RES SHR  S %CPU %MEM TIME+ COMMAND
       command.split("\n").each do |comm|
-        match = comm.scan(/\s+#{pid}\s+\S+\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(.*)/).flatten
+        match = comm.strip.scan(/#{pid}\s+\S+\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(.*)/).flatten
         next if match.empty?
         results = match
         break
       end
-
       results
     end
   end
