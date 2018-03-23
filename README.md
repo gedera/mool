@@ -25,7 +25,7 @@ Or install it yourself as:
 ### CPU
 You can check the posible values to use with:
 ```ruby
-    > MoolCpu::PROCESSORS
+    > MoolCpu.processors
     ["0", "1", "2", "4", "all"]
 ```
 It's posible get all cpu information:
@@ -110,89 +110,112 @@ It's posible get all cpu information:
 ]
 ```
  Or can get a specific cpu information:
-   ```ruby
-     >> MoolCpu.new(0) or MoolCpu.new("0")
-       #<MoolCpu:0x7f82959381a8 @nice=0.0, @gnice=0.0, @total=2.0, @irq=0.0, @usr=2.0, @guest=0.0, @iowait=0.0, @cores=2, @steal=0.0, @sys=0.0, @model_name="Intel(R) Core(TM) i3-3220 CPU @ 3.30GHz", @idle=97.0, @cpu_name="cpu_3", @soft=0.0>
-   ```
+```ruby
+     >> Mool::Cpu.new(0) # Or you can Mool::Cpu.new("0")
+       #<Mool::Cpu:0x7f82959381a8 
+         @nice=0.0, 
+         @gnice=0.0, 
+         @total=2.0, 
+         @irq=0.0, 
+         @usr=2.0, 
+         @guest=0.0, 
+         @iowait=0.0, 
+         @cores=2, 
+         @steal=0.0, 
+         @sys=0.0, 
+         @model_name="Intel(R) Core(TM) i3-3220 CPU @ 3.30GHz", 
+         @idle=97.0, 
+         @cpu_name="cpu_3", 
+         @soft=0.0>
+```
 ### System information (V. 2.0.0)
 Load average:
 
 ```ruby
-     >>  MoolSystem.new.load_average
-        { :total_thread_entities => 638, :current_loadavg => 0.08, :thread_entities_exec => 2, :last_15min_loadavg => 0.13, :last_pid_process_created => 6264, :last_5min_loadavg => 0.07 }
+     >>  Mool::System.new.load_average
+        { :total_thread_entities => 638,
+          :current_loadavg => 0.08,
+          :thread_entities_exec => 2,
+          :last_15min_loadavg => 0.13,
+          :last_pid_process_created => 6264,
+          :last_5min_loadavg => 0.07 }
 ```
 
 uptime:
 
 ```ruby
-     >>  MoolSystem.new.uptime
-        { :uptime_day => 4, :uptime_hour => 3, :uptime_minute => 20, :uptime_second => 10 }
+     >>  Mool::System.new.uptime
+        { :uptime_day => 4,
+          :uptime_hour => 3,
+          :uptime_minute => 20,
+          :uptime_second => 10 }
 ```
 
 Kernel version:
 
 ```ruby
-     >>  MoolSystem.new.kernel_version
+     >>  Mool::System.new.kernel_version
         "4.6.0-1-amd64"
 ```
 
 
 ### Memory
 ```ruby
-     >> MoolMemory.new
-       --- !ruby/object:MoolMemory
-       active: 2906775552.0
-       active_anon: 2175971328.0
-       active_file: 730804224.0
-       anon_huge_pages: 0.0
-       anon_pages: 2174132224.0
-       bounce: 0.0
-       buffers: 73887744.0
-       cached: 1795256320.0
-       commit_limit: 7322968064.0
-       committed_as: 8012181504.0
-       direct_map2_m: 12499025920.0
-       direct_map4k: 280199168.0
-       dirty: 217088.0
-       hardware_corrupted: 0.0
-       huge_pages_free: 0.0
-       huge_pages_rsvd: 0.0
-       huge_pages_surp: 0.0
-       huge_pages_total: 0.0
-       hugepagesize: 2097152.0
-       inactive: 1136472064.0
-       inactive_anon: 573755392.0
-       inactive_file: 562716672.0
-       kernel_stack: 10485760.0
-       mapped: 692449280.0
-       mem_available: 9536376832.0
-       mem_free: 8219561984.0
-       mem_total: 12498477056.0
-       mem_used: 2409771008.0
-       mlocked: 4096.0
-       nfs_unstable: 0.0
-       page_tables: 47812608.0
-       s_reclaimable: 76697600.0
-       s_unreclaim: 34598912.0
-       shmem: 575635456.0
-       slab: 111296512.0
-       swap_cached: 0.0
-       swap_free: 1073729536.0
-       swap_total: 1073729536.0
-       unevictable: 4096.0
-       unity: Bytes
-       vmalloc_chunk: 35183562584064.0
-       vmalloc_total: 35184372087808.0
-       vmalloc_used: 381046784.0
-       writeback: 0.0
-       writeback_tmp: 0.0
+     >> Mool::Memory.new
+        @active=5904642048.0,
+        @active_anon=3347439616.0,
+        @active_file=2557202432.0,
+        @anon_huge_pages=2260729856.0,
+        @anon_pages=4628471808.0,
+        @bounce=0.0,
+        @buffers=314597376.0,
+        @cached=3452170240.0,
+        @commit_limit=7319011328.0,
+        @committed_as=13602762752.0,
+        @direct_map2_m=8726249472.0,
+        @direct_map4k=4052975616.0,
+        @dirty=2002944.0,
+        @hardware_corrupted=0.0,
+        @huge_pages_free=0.0,
+        @huge_pages_rsvd=0.0,
+        @huge_pages_surp=0.0,
+        @huge_pages_total=0.0,
+        @hugepagesize=2097152.0,
+        @inactive=2607034368.0,
+        @inactive_anon=1485414400.0,
+        @inactive_file=1121619968.0,
+        @kernel_stack=18612224.0,
+        @mapped=1865633792.0,
+        @mem_available=5570912256.0,
+        @mem_free=1771671552.0,
+        @mem_total=12490563584.0,
+        @mem_used=6926209024.0,
+        @mlocked=143360.0,
+        @nfs_unstable=0.0,
+        @page_tables=70656000.0,
+        @s_reclaimable=448073728.0,
+        @s_unreclaim=171155456.0,
+        @shmem=444522496.0,
+        @shmem_huge_pages=0.0,
+        @shmem_pmd_mapped=0.0,
+        @slab=619229184.0,
+        @swap_cached=25915392.0,
+        @swap_free=308559872.0,
+        @swap_total=1073729536.0,
+        @unevictable=143360.0,
+        @unity="Bytes",
+        @vmalloc_chunk=0.0,
+        @vmalloc_total=35184372087808.0,
+        @vmalloc_used=0.0,
+        @writeback=0.0,
+        @writeback_tmp=0.0>
 ```
 By default the values are in Bytes. So it's posible to changed to different units (Bytes Kbytes, Mbytes, Gbytes).
 ```ruby
-      >> MoolMemory.new.to_b
-      >> MoolMemory.new.to_kb
-      >> MoolMemory.new.to_mb
-      >> MoolMemory.new.to_gb
+      >> Mool::Memory.new.to_b
+      >> Mool::Memory.new.to_kb
+      >> Mool::Memory.new.to_mb
+      >> Mool::Memory.new.to_gb
 ```
 ## Process
 To get process information you can provide two params:
