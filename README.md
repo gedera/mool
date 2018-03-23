@@ -3,6 +3,8 @@
 
 The best thing to have this gem is how get the information. The information is obtained from different source but mainly from files and basic commands such as **"top"**, **"mpstat"** and **"df"**.
 
+Tested on **Alpine**, **Debian** and **Ubuntu**, 
+
 ## Installation
 Add this line to your application's Gemfile:
 ```ruby
