@@ -1,6 +1,7 @@
 module Mool
   class Cpu
     attr_reader :cpu_name,
+                :id,
                 :model_name,
                 :cores,
                 :usr,
@@ -24,6 +25,7 @@ module Mool
       end
       result = opt.empty? ? Mool::Command.cpuinfo[process_number.to_s] : opt
       @cpu_name = "cpu_#{process_number}"
+      @id         = process_number
       @model_name = result['model_name']
       @cores      = result['cpu_cores'].to_i
       @usr        = result['%usr'].to_f
