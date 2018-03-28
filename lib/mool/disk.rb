@@ -1,5 +1,5 @@
 module Mool
-  class Disk
+  class Disk < Mool::Base
     attr_accessor :path,
                   :major,
                   :minor,
@@ -17,13 +17,16 @@ module Mool
                   :unity
 
     def initialize(dev_name)
-      paths = Mool::Command.dev_block_command.select do |entry|
-        Mool::Disk.dev_name_command(entry).include?(dev_name) ||
-          Mool::Disk.uevent_command(entry).include?(dev_name) ||
-          Mool::Disk.logical_name_command(entry)
-      end
+      @path = nil
 
-      @path = paths.first
+      Mool::Command.dev_block_command.each do |entry|
+        logical_name = Mool::Command.logical_name_command(entry)
+        next unless Mool::Command.dev_name_command(entry).include?(dev_name) ||
+                    Mool::Command.uevent_command(entry).include?(dev_name) ||
+                    (logical_name.present? && logical_name.include?(dev_name))
+        @path = entry
+        break
+      end
 
       raise "Does't exist #{dev_name}!" if @path.nil?
       read_uevent
@@ -60,9 +63,13 @@ module Mool
       @major,
       @minor,
       @devname,
-      @devtype = Mool::Command.uevent_command(@path).scan(
-        /.*=(\d+)\n.*=(\d+)\n.*=(\S+)\n.*=(\w+)\n/
-      ).flatten
+      @devtype =
+      Mool::Command.uevent_command(@path).split("\n").map do |result|
+        result.split('=').last
+      end
+      # Mool::Command.uevent_command(@path).scan(
+      #   /.*=(\d+)\n.*=(\d+)\n.*=(\S+)\n.*=(\w+)\n/
+      # ).flatten
     end
 
     def dev
@@ -95,11 +102,12 @@ module Mool
     def partitions
       return @partitions if defined? @partitions
       return unless is_disk?
+
       @partitions = Mool::Command.partitions_command(
         @path,
         @devname
       ).map do |part|
-        MoolDisk.new(part.split('/').last)
+        Mool::Disk.new(part.split('/').last)
       end
     end
 
@@ -110,7 +118,7 @@ module Mool
       end
 
       @slaves = blocks.map do |slave|
-        MoolDisk.new(slave.split('/').last)
+        Mool::Disk.new(slave.split('/').last)
       end
     end
 
@@ -163,6 +171,7 @@ module Mool
                     !real_path.include?('/sr') &&
                     !Mool::Command.real_path_command_exist?(real_path) &&
                     Mool::Command.slaves_command(real_path).empty?
+
         disks << Mool::Disk.new(entry.split('/').last)
       end
 
@@ -177,7 +186,7 @@ module Mool
     end
 
     def self.all_usable
-      result = MoolDisk.all
+      result = Mool::Disk.all
       result.each do |disk|
         result += (disk.partitions +
                    disk.slaves +

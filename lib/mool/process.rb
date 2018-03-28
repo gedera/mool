@@ -1,6 +1,6 @@
 module Mool
-  class Process
-    attr_reader :messures, :pattern
+  class Process < Mool::Base
+    attr_accessor :messures, :pattern
 
     STATUS_PROCESS = {
       'D' => :uninterruptible_sleep,
@@ -9,7 +9,7 @@ module Mool
       'T' => :stopped_by_job_control_signal,
       't' => :stopped_by_debugger_during_trace,
       'Z' => :zombie
-    }
+    }.freeze
 
     def initialize(name, pattern, opt = {})
       if name.class != String || pattern.class != String

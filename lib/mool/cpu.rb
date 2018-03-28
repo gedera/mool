@@ -1,20 +1,20 @@
 module Mool
-  class Cpu
-    attr_reader :cpu_name,
-                :id,
-                :model_name,
-                :cores,
-                :usr,
-                :nice,
-                :sys,
-                :iowait,
-                :irq,
-                :soft,
-                :steal,
-                :guest,
-                :gnice,
-                :idle,
-                :total
+  class Cpu < Mool::Base
+    attr_accessor :cpu_name,
+                  :id,
+                  :model_name,
+                  :cores,
+                  :usr,
+                  :nice,
+                  :sys,
+                  :iowait,
+                  :irq,
+                  :soft,
+                  :steal,
+                  :guest,
+                  :gnice,
+                  :idle,
+                  :total
 
     # ["all", "1", "2"]
     def initialize(process_number, opt={})

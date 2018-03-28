@@ -1,16 +1,16 @@
 module Mool
-  class System
-    attr_reader :kernel,
-                :current_loadavg,
-                :last_5min_loadavg,
-                :last_15min_loadavg,
-                :thread_entities_exec,
-                :total_thread_entities,
-                :last_pid_process_created,
-                :uptime_day,
-                :uptime_hour,
-                :uptime_minute,
-                :uptime_second
+  class System < Mool::Base
+    attr_accessor :kernel,
+                  :current_loadavg,
+                  :last_5min_loadavg,
+                  :last_15min_loadavg,
+                  :thread_entities_exec,
+                  :total_thread_entities,
+                  :last_pid_process_created,
+                  :uptime_day,
+                  :uptime_hour,
+                  :uptime_minute,
+                  :uptime_second
 
     def initialize
       @kernel = Mool::Command.uname_command

@@ -1,4 +1,5 @@
-%w[command
+%w[base
+   command
    cpu
    disk
    memory

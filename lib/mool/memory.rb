@@ -1,5 +1,5 @@
 module Mool
-  class Memory
+  class Memory < Mool::Base
 
     attr_accessor :unity, :mem_used
 

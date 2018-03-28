@@ -13,6 +13,10 @@ module Mool
       `df`
     end
 
+    def self.dev_name_command(dev_entry)
+      File.read("#{dev_entry}/dev")
+    end
+
     def self.mount_command
       File.read('/proc/mounts')
     end
