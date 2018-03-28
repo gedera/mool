@@ -101,7 +101,7 @@ module Mool
 
     def partitions
       return @partitions if defined? @partitions
-      return unless is_disk?
+      return [] unless is_disk?
 
       @partitions = Mool::Command.partitions_command(
         @path,
@@ -113,6 +113,7 @@ module Mool
 
     def slaves
       return @slaves if defined? @slaves
+
       blocks = Mool::Command.dev_block_command.select do |entry|
         File.directory?("#{entry}/slaves/#{@devname}")
       end
