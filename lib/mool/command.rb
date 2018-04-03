@@ -10,7 +10,7 @@ module Mool
     end
 
     def self.df_command
-      `df`
+      `POSIXLY_CORRECT=512 df`
     end
 
     def self.dev_name_command(dev_entry)

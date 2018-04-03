@@ -6,6 +6,10 @@ module Mool
                   :devname,
                   :devtype,
                   :size,
+                  :total_size,
+                  :percentage_used,
+                  :used_size,
+                  :free_size,
                   :swap,
                   :mount_point,
                   :file_system,
@@ -39,6 +43,7 @@ module Mool
     end
 
     def mounting_point
+      @mount_point = nil
       Mool::Command.mount_command.include?(@logical_name) &&
         @mount_point ||= Mool::Command.mount_command.scan(
         /#{@logical_name} (\S+)/
@@ -93,10 +98,15 @@ module Mool
       result = Mool::Command.df_command.scan(
         /(#{@logical_name}|#{@devname})\s+(\d+)\s+(\d+)\s+(\d+)\s+(\S+)/
       ).flatten
-      @total_block = Mool::Command.capacity_partition_command(@path).chomp.to_f *
-                     Mool::BLOCK_SIZE
-      @block_used  = result[2].to_f * Mool::BLOCK_SIZE
-      @block_free  = @total_block - @block_used
+      # @total_block = Mool::Command.capacity_partition_command(@path).chomp.to_f
+      @total_block = result[1].to_f
+      @total_size = result[1].to_f * Mool::BLOCK_SIZE
+      @block_used  = result[2].to_f
+      @block_free  = result[3].to_f
+      @used_size = result[2].to_f * Mool::BLOCK_SIZE
+      @free_size = result[3].to_f * Mool::BLOCK_SIZE
+      return if result.empty?
+      @percentage_used = result[4].delete('%')
     end
 
     def partitions
@@ -178,6 +188,26 @@ module Mool
 
       disks.each { |disk| disk.partitions.each { |part| part.partitions && part.slaves }}
       disks.each { |disk| disk.slaves.each { |part| part.partitions && part.slaves }}
+
+      disks.each do |disk|
+        disk.partitions.each do |partition|
+          partition.slaves.each do |slave|
+            partition.total_size += slave.total_size
+            partition.used_size += slave.used_size
+            partition.free_size += slave.free_size
+            partition.block_free += slave.block_free
+            partition.block_used += slave.block_used
+            partition.total_block += slave.total_block
+          end
+          disk.total_size += partition.total_size
+          disk.used_size += partition.used_size
+          disk.free_size += partition.free_size
+          disk.block_free += partition.block_free
+          disk.block_used += partition.block_used
+          disk.total_block += partition.total_block
+        end
+      end
+
       disks
     end
 
