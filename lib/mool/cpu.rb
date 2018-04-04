@@ -23,7 +23,8 @@ module Mool
       unless result.include?(process_number.to_s)
         raise "Cpu name incorrect!. Posible values: #{result.join(', ')}"
       end
-      result = opt.empty? ? Mool::Command.cpuinfo[process_number.to_s] : opt
+
+      result = opt.empty? ? Mool::Cpu.cpuinfo[process_number.to_s] : opt
       @cpu_name = "cpu_#{process_number}"
       @id         = process_number
       @model_name = result['model_name']
