@@ -20,17 +20,17 @@ module Mool
                   :slaves,
                   :unity
 
-    def initialize(dev_name)
-      @path = nil
-
-      Mool::Command.dev_block_command.each do |entry|
-        logical_name = Mool::Command.logical_name_command(entry)
-        next unless Mool::Command.dev_name_command(entry).include?(dev_name) ||
+    def initialize(dev_name, path = nil)
+      @path = if path.nil?
+                Mool::Command.dev_block_command.select do |entry|
+                  logical_name = Mool::Command.logical_name_command(entry)
+                  Mool::Command.dev_name_command(entry).include?(dev_name) ||
                     Mool::Command.uevent_command(entry).include?(dev_name) ||
                     (logical_name.present? && logical_name.include?(dev_name))
-        @path = entry
-        break
-      end
+                end.first
+              else
+                path
+              end
 
       raise "Does't exist #{dev_name}!" if @path.nil?
       read_uevent
@@ -183,7 +183,7 @@ module Mool
                     !Mool::Command.real_path_command_exist?(real_path) &&
                     Mool::Command.slaves_command(real_path).empty?
 
-        disks << Mool::Disk.new(entry.split('/').last)
+        disks << Mool::Disk.new(entry.split('/').last, entry)
       end
 
       disks.each { |disk| disk.partitions.each { |part| part.partitions && part.slaves }}
