@@ -216,6 +216,10 @@ module Mool
       hash_disks = {}
 
       all_partitions.each do |partition|
+        if partition[3].include?('ram') || partition[3].include?('sr')
+          all_partitions.delete(partition)
+          next
+        end
         devname = partition[3]
         path = "/sys/block/#{devname}"
         next unless Mool::Command.root_block_device?(devname)
