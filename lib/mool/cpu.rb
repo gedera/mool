@@ -52,7 +52,7 @@ module Mool
     def self.cpuinfo
       cpu_info = {}
 
-      mpstat = Mool::Command.mpstat_command.split("\n\n")[2].split("\n").map do |i|
+      mpstat = Mool::Command.mpstat.split("\n\n")[2].split("\n").map do |i|
         i.gsub(/^\S+:/, '').strip.split(/\s+/)
       end
 
@@ -66,8 +66,8 @@ module Mool
         cpu_info.merge!(core_name => res)
       end
 
-      Mool::Command.cpuinfo_command.gsub(/([^\n])\n([^\n])/,
-                                         '\1 \2').scan(/processor\t*: (\d+).*model name\t*: (.*) stepping.*cpu cores\t*: (\d+)/).each do |v|
+      Mool::Command.cpuinfo.gsub(/([^\n])\n([^\n])/,
+                                 '\1 \2').scan(/processor\t*: (\d+).*model name\t*: (.*) stepping.*cpu cores\t*: (\d+)/).each do |v|
         cpu_info[v[0]]['model_name'] = v[1]
         cpu_info[v[0]]['cpu_cores'] = v[2]
       end
@@ -76,7 +76,7 @@ module Mool
     end
 
     def self.processors
-      Mool::Command.cpuinfo_command.scan(/processor\t*: (\d+)/).flatten + ['all']
+      Mool::Command.cpuinfo.scan(/processor\t*: (\d+)/).flatten + ['all']
     end
 
     def self.all

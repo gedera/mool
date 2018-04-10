@@ -76,8 +76,8 @@ module Mool
     end
 
     def self.services_status(services)
-      command_ps = Mool::Command.ps_command
-      command_top = Mool::Command.top_command
+      command_ps = Mool::Command.ps
+      command_top = Mool::Command.top
 
       result = {}
 

@@ -16,42 +16,37 @@ module Mool
                   :total_block,
                   :block_used,
                   :block_free,
+                  :logical_name,
                   :partitions,
                   :slaves,
                   :unity
 
-    def initialize(dev_name, path = nil)
+    def initialize(devname, path = nil)
+      @unity = Mool::BYTES
+      @devname = devname
+      @logical_name = devname
+
       @path = if path.nil?
-                Mool::Command.dev_block_command.select do |entry|
-                  logical_name = Mool::Command.logical_name_command(entry)
-                  Mool::Command.dev_name_command(entry).include?(dev_name) ||
-                    Mool::Command.uevent_command(entry).include?(dev_name) ||
-                    (logical_name.present? && logical_name.include?(dev_name))
-                end.first
+                Mool::Disk.proc_partitions_hash(@devname)[:path]
               else
                 path
               end
 
-      raise "Does't exist #{dev_name}!" if @path.nil?
+      raise "Does't exist #{devname} on #{@path}" if @path.nil? || @devname.nil?
       read_uevent
-      logical_name
-      swap
       capacity
-      @unity = Mool::BYTES
-      mounting_point
-      file_system
     end
 
     def mounting_point
       @mount_point = nil
-      Mool::Command.mount_command.include?(@logical_name) &&
-        @mount_point ||= Mool::Command.mount_command.scan(
-        /#{@logical_name} (\S+)/
+      Mool::Command.mount.include?(@devname) &&
+        @mount_point ||= Mool::Command.mount.scan(
+        /#{@devname} (\S+)/
       ).flatten.first
     end
 
     def file_system
-      files = Mool::Command.file_system_command.select do |a|
+      files = Mool::Command.file_system.select do |a|
         a.include?(@devname)
       end
 
@@ -59,43 +54,35 @@ module Mool
         @file_system ||= files.first.split('/')[3]
     end
 
-    def logical_name
-      lname = Mool::Command.logical_name_command(@path)
-      @logical_name = lname.present? ? lname : @devname
-    end
-
     def read_uevent
       @major,
       @minor,
       @devname,
       @devtype =
-      Mool::Command.uevent_command(@path).split("\n").map do |result|
+      Mool::Command.uevent(@path).split("\n").map do |result|
         result.split('=').last
       end
-      # Mool::Command.uevent_command(@path).scan(
-      #   /.*=(\d+)\n.*=(\d+)\n.*=(\S+)\n.*=(\w+)\n/
-      # ).flatten
     end
 
     def dev
       @major + @minor
     end
 
-    def is_disk?
+    def disk?
       @devtype == 'disk'
     end
 
-    def is_partition?
+    def partition?
       @devtype == 'partition'
     end
 
     def swap
-      @swap ||= Mool::Command.swap_command(@logical_name).present?
+      @swap ||= Mool::Command.swap(@devname).present?
     end
 
     def capacity
       return if defined?(@total_block) && defined?(@block_used) && defined?(@block_free)
-      result = Mool::Command.df_command.scan(
+      result = Mool::Command.df.scan(
         /(#{@logical_name}|#{@devname})\s+(\d+)\s+(\d+)\s+(\d+)\s+(\S+)/
       ).flatten
       # @total_block = Mool::Command.capacity_partition_command(@path).chomp.to_f
@@ -110,26 +97,23 @@ module Mool
     end
 
     def partitions
-      return @partitions if defined? @partitions
-      return [] unless is_disk?
+      return @cache_partitions if defined? @cache_partitions
+      return [] unless disk?
 
-      @partitions = Mool::Command.partitions_command(
-        @path,
-        @devname
-      ).map do |part|
-        Mool::Disk.new(part.split('/').last)
+      paths = Mool::Command.partitions(@devname)
+
+      @cache_partitions = paths.map do |path|
+        Mool::Disk.new(path.split('/').last, path)
       end
     end
 
     def slaves
-      return @slaves if defined? @slaves
+      return @cache_slaves if defined? @cache_slaves
 
-      blocks = Mool::Command.dev_block_command.select do |entry|
-        File.directory?("#{entry}/slaves/#{@devname}")
-      end
+      slaves = Mool::Command.holders(@path)
 
-      @slaves = blocks.map do |slave|
-        Mool::Disk.new(slave.split('/').last)
+      @cache_slaves = slaves.map do |slave_devname|
+        Mool::Disk.new(slave_devname, @path + "/holders/#{slave_devname}")
       end
     end
 
@@ -173,21 +157,112 @@ module Mool
                     Mool::GBYTES)
     end
 
+    def self.swap
+      result = Mool::Command.swap.scan(%r{/.*\n\/dev\/(\S+)/}).flatten.first
+      Mool::Disk.new(result) unless result.nil?
+    end
+
+    def self.find_slaves(path, all_partitions)
+      slaves = Mool::Command.holders(path)
+
+      result = {}
+
+      slaves.each do |slave|
+        all_partitions.each do |partition|
+          devname = partition[3]
+          next unless slave.include?(devname)
+          all_partitions.delete(partition)
+          result[devname] = { path: path + "/holders/#{slave}" }
+        end
+      end
+
+      result
+    end
+
+    def self.find_partitions(disk, all_partitions)
+      parts = Mool::Command.partitions(disk)
+
+      result = {}
+
+      parts.each do |part|
+        all_partitions.each do |partition|
+          devname = partition[3]
+          next unless part.include?(devname)
+          all_partitions.delete(partition)
+          result[devname] = {
+            path: part,
+            slaves: find_slaves(part, all_partitions)
+          }
+        end
+      end
+
+      result
+    end
+
+    def self.find_especific_devname(obj, key)
+      if obj.respond_to?(:key?) && obj.key?(key)
+        obj[key]
+      elsif obj.respond_to?(:each)
+        r = nil
+        obj.find { |*a| r = find_especific_devname(a.last, key) }
+        r
+      end
+    end
+
+    def self.proc_partitions_hash(especific_devname = nil)
+      all_partitions = Mool::Command.all_partitions.scan(/(\d+)\s+(\d+)\s+(\d+)\s+(\S+)/)
+      hash_disks = {}
+
+      all_partitions.each do |partition|
+        devname = partition[3]
+        path = "/sys/block/#{devname}"
+        next unless Mool::Command.root_block_device?(devname)
+        all_partitions.delete(partition)
+        hash_disks[devname] = {
+          path: path,
+          partitions: find_partitions(devname, all_partitions),
+          slaves: find_slaves(path, all_partitions)
+        }
+      end
+
+      return hash_disks if especific_devname.nil?
+      find_especific_devname(hash_disks, especific_devname)
+    end
+
     def self.all
       disks = []
 
-      Mool::Command.dev_block_command.each do |entry|
-        real_path = Mool::Command.real_path_block_command(entry)
-        next unless !real_path.include?('virtual') &&
-                    !real_path.include?('/sr') &&
-                    !Mool::Command.real_path_command_exist?(real_path) &&
-                    Mool::Command.slaves_command(real_path).empty?
+      proc_partitions_hash.each do |disk_name, disk_opts|
+        all_partitions = []
+        disk = Mool::Disk.new(disk_name, disk_opts[:path])
 
-        disks << Mool::Disk.new(entry.split('/').last, entry)
+        disk_opts[:partitions].map do |partition_name, partition_opts|
+          partition = Mool::Disk.new(
+            partition_name,
+            partition_opts[:path]
+          )
+
+          all_partitions << partition
+
+          partition.slaves = partition_opts[:slaves].map do |slave_name, slave_opts|
+            Mool::Disk.new(
+              slave_name,
+              slave_opts[:path]
+            )
+          end
+        end
+
+        disk.partitions = all_partitions
+
+        disk.slaves = disk_opts[:slaves].map do |slave_name, slave_opts|
+          Mool::Disk.new(
+            slave_name,
+            slave_opts[:path]
+          )
+        end
+
+        disks << disk
       end
-
-      disks.each { |disk| disk.partitions.each { |part| part.partitions && part.slaves }}
-      disks.each { |disk| disk.slaves.each { |part| part.partitions && part.slaves }}
 
       disks.each do |disk|
         disk.partitions.each do |partition|
@@ -209,21 +284,6 @@ module Mool
       end
 
       disks
-    end
-
-    def self.swap
-      result = Mool::Command.swap_command.scan(%r{/.*\n\/dev\/(\S+)/}).flatten.first
-      Mool::Disk.new(result) unless result.nil?
-    end
-
-    def self.all_usable
-      result = Mool::Disk.all
-      result.each do |disk|
-        result += (disk.partitions +
-                   disk.slaves +
-                   (disk.partitions + disk.slaves).collect { |p| p.partitions + p.slaves }.flatten)
-      end
-      result.reject(&:blank?).select { |d| (d.partitions + d.slaves).blank? }
     end
   end
 end

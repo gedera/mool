@@ -4,7 +4,7 @@ module Mool
     attr_accessor :unity, :mem_used
 
     def initialize
-      Mool::Command.meminfo_command.scan(/(\S+):\s+(\d+)/).each do |meminfo|
+      Mool::Command.meminfo.scan(/(\S+):\s+(\d+)/).each do |meminfo|
         var = meminfo[0].tr('(', '_').tr(')', '').underscore
         instance_variable_set(
           "@#{var}",
