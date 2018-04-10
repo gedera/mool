@@ -24,7 +24,6 @@ module Mool
     def initialize(devname, path = nil)
       @unity = Mool::BYTES
       @devname = devname
-      @logical_name = devname
 
       @path = if path.nil?
                 Mool::Disk.proc_partitions_hash(@devname)[:path]
@@ -33,6 +32,8 @@ module Mool
               end
 
       raise "Does't exist #{devname} on #{@path}" if @path.nil? || @devname.nil?
+      lname = Mool::Command.logical_name(@path)
+      @logical_name = lname.blank? ? @devname : lname
       read_uevent
       capacity
     end
@@ -85,6 +86,7 @@ module Mool
       result = Mool::Command.df.scan(
         /(#{@logical_name}|#{@devname})\s+(\d+)\s+(\d+)\s+(\d+)\s+(\S+)/
       ).flatten
+
       # @total_block = Mool::Command.capacity_partition_command(@path).chomp.to_f
       @total_block = result[1].to_f
       @total_size = result[1].to_f * Mool::BLOCK_SIZE

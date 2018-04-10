@@ -11,6 +11,10 @@ module Mool
     end
 
     # DISK COMMANDS
+    def self.logical_name(path)
+      File.read("#{path}/dm/name") rescue nil
+    end
+
     def self.mount
       File.read('/proc/mounts')
     end
