@@ -313,50 +313,23 @@ In this case we have only one messure, but exists especial cases, where the patt
           @pattern="urxvt">
 ```
 ### Disk
-It's possible to get disk, partition or virtual device information using dev name **MAJOR:MINOR** ("**8:2**"), device name **sda**, **sda1** or virtual device such as "**lvm-sda2**" or "**md0**".
+It's possible to get disk, partition or virtual device information using dev name **sda**, **sda1** or virtual device such as or "**md-0**". You can check `cat /proc/partitions`.
 ```ruby
-    >> Mool::Disk.new("8:0")
-       #<Mool::Disk:0x7fdc6e283f00 @logical_name="sda",
-                                   @total_block=500107862016.0,
-                                   @devtype="disk",
-                                   @mount_point="/boot",
-                                   @swap=false,
-                                   @minor="0",
-                                   @devname="sda",
-                                   @block_free=0.0,
-                                   @path="/sys/dev/block/8:0",
-                                   @major="8",
-                                   @file_system="ext4",
-                                   @unity="Bytes",
-                                   @block_used=0.0>
-    >> Mool::Disk.new("sda1")
-       #<Mool::Disk:0x7fdc6e266a40 @logical_name="sda1",
-                                   @total_block=262144000.0,
-                                   @devtype="partition",
-                                   @mount_point="/boot",
-                                   @swap=false,
-                                   @minor="1",
-                                   @devname="sda1",
-                                   @block_free=59062784.0,
-                                   @path="/sys/dev/block/8:1",
-                                   @major="8",
-                                   @file_system="ext4",
-                                   @unity="Bytes",
-                                   @block_used=57123840.0>
-    >> Mool::Disk.new("sdblvm-homelvm")
-       #<Mool::Disk:0x7fdc6e248658 @logical_name="sdblvm-homelvm",
-                                   @total_block=445602856960.0,
-                                   @devtype="disk",
-                                   @mount_point="/boot",
-                                   @swap=false,
-                                   @minor="3",
-                                   @devname="dm-3",
-                                   @block_free=187429210112.0,
-                                   @path="/sys/dev/block/252:3",
-                                   @major="252",
-                                   @file_system="btrfs",
-                                   @unity="Bytes",
-                                   @block_used=34269296640.0>
+    >> Mool::Disk.new("sda")
+    => #<Mool::Disk:0x000056407745c5a0
+       @block_free=0.0,
+       @block_used=0.0,
+       @devname="sda",
+       @devtype="disk",
+       @free_size=0.0,
+       @logical_name="sda",
+       @major="8",
+       @minor="0",
+       @path="/sys/block/sda",
+       @total_block=0.0,
+       @total_size=0.0,
+       @unity="Bytes",
+       @used_size=0.0>
 ```
 It's possible get all partition if the object is `@devtype="disk"`, such as:
 ```ruby
@@ -370,7 +343,7 @@ It's possible get all partition if the object is `@devtype="disk"`, such as:
                                       @minor="1",
                                       @devname="sda1",
                                       @block_free=59062784.0,
-                                      @path="/sys/dev/block/8:1",
+                                      @path="/sys/block/sda/sda1",
                                       @major="8",
                                       @file_system="ext4",
                                       @unity="Bytes",
@@ -382,7 +355,7 @@ It's possible get all partition if the object is `@devtype="disk"`, such as:
                                       @minor="2",
                                       @devname="sda2",
                                       @block_free=0.0,
-                                      @path="/sys/dev/block/8:2",
+                                      @path="/sys/block/sda/sda2",
                                       @major="8",
                                       @file_system="cgroup",
                                       @unity="Bytes",
@@ -394,7 +367,7 @@ It's possible get all partition if the object is `@devtype="disk"`, such as:
                                       @minor="3",
                                       @devname="sda3",
                                       @block_free=0.0,
-                                      @path="/sys/dev/block/8:3",
+                                      @path="/sys/block/sda/sda3",
                                       @major="8",
                                       @file_system=nil,
                                       @unity="Bytes",
@@ -413,7 +386,7 @@ Otherwise it's possible too get the slaves. The slaves are virtual devices for e
                                         @minor="0",
                                         @devname="dm-0",
                                         @block_free=9739984896.0,
-                                        @path="/sys/dev/block/252:0",
+                                        @path="/sys/block/sda/sda3/holders/dm-0",
                                         @major="252",
                                         @file_system="ext4",
                                         @unity="Bytes",
@@ -426,7 +399,7 @@ Otherwise it's possible too get the slaves. The slaves are virtual devices for e
                                         @minor="1",
                                         @devname="dm-1",
                                         @block_free=1926668288.0,
-                                        @path="/sys/dev/block/252:1",
+                                        @path="/sys/block/sda/sda3/holders/dm-1",
                                         @major="252",
                                         @file_system="ext4",
                                         @unity="Bytes",
@@ -439,7 +412,7 @@ Otherwise it's possible too get the slaves. The slaves are virtual devices for e
                                         @minor="2",
                                         @devname="dm-2",
                                         @block_free=5497151488.0,
-                                        @path="/sys/dev/block/252:2",
+                                        @path="/sys/block/sda/sda3/holders/dm-2",
                                         @major="252",
                                         @file_system="ext4",
                                         @unity="Bytes",
@@ -452,7 +425,7 @@ Otherwise it's possible too get the slaves. The slaves are virtual devices for e
                                         @minor="3",
                                         @devname="dm-3",
                                         @block_free=187430152192.0,
-                                        @path="/sys/dev/block/252:3",
+                                        @path="/sys/block/sda/sda3/holders/dm-3",
                                         @major="252",
                                         @file_system="btrfs",
                                         @unity="Bytes",
@@ -461,131 +434,15 @@ Otherwise it's possible too get the slaves. The slaves are virtual devices for e
 ```
 
 Other way is get all disk with yours parititons and slaves.
+
 ```ruby
     >> Mool::Disk.all
-       - !ruby/object:MoolDisk
-         block_free: 0.0
-         block_used: 0.0
-         devname: sda
-         evtype: disk
-         file_system: ext4
-         logical_name: sda
-         major: "8"
-         minor: "0"
-         mount_point: /boot
-         swap: false
-         total_block: 500107862016.0
-         unity: Bytes
-         partitions:
-         - !ruby/object:MoolDisk
-           block_free: 59062784.0
-           block_used: 57123840.0
-           devname: sda1
-           devtype: partition
-           file_system: ext4
-           logical_name: sda1
-           major: "8"
-           minor: "1"
-           mount_point: /boot
-           partitions: []
-           path: /sys/dev/block/8:1
-           slaves: []
-           swap: false
-           total_block: 262144000.0
-           unity: Bytes
-         - !ruby/object:MoolDisk
-           block_free: 0.0
-           block_used: 0.0
-           devname: sda2
-           devtype: partition
-           file_system: cgroup
-           logical_name: sda2
-           major: "8"
-           minor: "2"
-           partitions: []
-           path: /sys/dev/block/8:2
-           slaves: []
-           swap: true
-           total_block: 1073741824.0
-           unity: Bytes
-         - !ruby/object:MoolDisk
-           block_free:	0.0
-           block_used:	0.0
-           devname: sda3
-           devtype: partition
-           file_system:
-           logical_name: sda3
-           major: "8"
-           minor: "3"
-           partitions: []
-           path: /sys/dev/block/8:3
-           slaves:
-           - !ruby/object:MoolDisk
-             block_free: 9739984896.0
-             block_used: 5232629760.0
-             devname: dm-0
-             devtype: disk
-             file_system: ext4
-             logical_name: sdblvm-rootlvm
-             major: "252"
-             minor: "0"
-             path: /sys/dev/block/252:0
-             swap: false
-             total_block: 32212254720.0
-             unity: Bytes
-           - !ruby/object:MoolDisk
-             block_free: 1926668288.0
-             block_used: 4227072.0
-             devname: dm-1
-             devtype: disk
-             file_system: ext4
-             logical_name: sdblvm-tmplvm
-             major: "252"
-             minor: "1"
-             mount_point: /boot
-             path: /sys/dev/block/252:1
-             swap: false
-             total_block: 4294967296.0
-             unity: Bytes
-           - !ruby/object:MoolDisk
-             block_free: 5497149440.0
-             block_used: 1951401984.0
-             devname: dm-2
-             devtype: disk
-             file_system: ext4
-             logical_name: sdblvm-varlvm
-             major: "252"
-             minor: "2"
-             mount_point: /boot
-             path: /sys/dev/block/252:2
-             swap: false
-             total_block: 16106127360.0
-             unity: Bytes
-           - !ruby/object:MoolDisk
-             block_free: 187430135808.0
-             block_used: 34268346368.0
-             devname: dm-3
-             devtype: disk
-             file_system: btrfs
-             logical_name: sdblvm-homelvm
-             major: "252"
-             minor: "3"
-             mount_point: /boot
-             path: /sys/dev/block/252:3
-             swap: false
-             total_block: 445602856960.0
-             unity: Bytes
-             swap: false
-             total_block: 498770927616.0
-             unity: Bytes
-             path: /sys/dev/block/8:0
-             slaves: []
 ```
 
 Swap partition:
 
 ```ruby
-    >> MoolDisk.swap
+    >> Mool::Disk.swap
        #<Mool::Disk:0x7f711644d890 @file_system="cgroup",
                                    @unity="Bytes",
                                    @block_used=0.0,
@@ -593,7 +450,7 @@ Swap partition:
                                    @total_block=1073741824.0,
                                    @minor="2",
                                    @devtype="partition",
-                                   @path="/sys/dev/block/8:2",
+                                   @path="/sys/block/sda/sda2",
                                    @swap=true,
                                    @major="8",
                                    @ devname="sda2",
